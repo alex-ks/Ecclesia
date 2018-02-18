@@ -8,7 +8,7 @@ Simple [Executor API](https://app.swaggerhub.com/apis/alex-ks/ict-executor) impl
 
 ## Filomena
 
-F# compiler wich produces computation graph description in terms of [Executor API](https://app.swaggerhub.com/apis/alex-ks/ict-executor). Allows program to be executed as parallel as it can be. You can play with the Filomena [here](ccfit.nsu.ru/~komissarov/Filomena/) - please report errors and strange behaviour to its [GitHub issue tracker](https://github.com/alex-ks/Filomena/issues).
+F# compiler wich produces computation graph description in terms of [Executor API](https://app.swaggerhub.com/apis/alex-ks/ict-executor). Allows program to be executed as parallel as it can be. You can play with the Filomena [here](http://ccfit.nsu.ru/~komissarov/Filomena/) - please report errors and strange behaviour to its [GitHub issue tracker](https://github.com/alex-ks/Filomena/issues).
 
 Currently supported features:
 - Value bindings
