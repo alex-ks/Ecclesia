@@ -8,19 +8,19 @@ using System.IO;
 
 namespace Ecclesia.LocalExecutor.Endpoint
 {
-    public class MethodManager
+    public class MethodManager : IMethodManager
     {
         public static IConfiguration Configuration { get; set; }
 
-        public string PathForMethod(string nameOfMethod)
+        public string GetMethodSource(string methodName)
         {
             var ConfigurationMethods = new ConfigurationBuilder()
                             .SetBasePath(Directory.GetCurrentDirectory())
-                            .AddJsonFile("configurationMethods.json");
+                            .AddJsonFile("methodsConf.json");
 
             Configuration = ConfigurationMethods.Build();
 
-            return Configuration[nameOfMethod].ToString();
+            return File.ReadAllText(Configuration[methodName].ToString());
         }
     }
 }

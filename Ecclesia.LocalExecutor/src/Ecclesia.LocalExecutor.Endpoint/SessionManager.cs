@@ -12,6 +12,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
 {
     public class SessionManager
     {
+        private readonly Executor _executor;
         private Dictionary<Guid, ComputationGraph> sessionDictionary;
         private Dictionary<Guid, SessionStatus> sessionStatus;
         private object lockListSession = new object();
@@ -23,8 +24,9 @@ namespace Ecclesia.LocalExecutor.Endpoint
             return outputs => Notify(idSession, idOperation, outputs);
         }
 
-        public SessionManager(ILogger<SessionManager> logger) 
+        public SessionManager(ILogger<SessionManager> logger, Executor executor)
         {
+            _executor = executor;
             sessionDictionary = new Dictionary<Guid, ComputationGraph>();
             sessionStatus = new Dictionary<Guid, SessionStatus>();
             _logger = logger;
@@ -135,10 +137,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
                 List<string> inputsValues = GetInputsValues(operation.Input,mnemonicsTableSession);
                 SessionUtilities.OperationRunning(sessionStatus[idSession].OperationStatus[operation.Id]);
                 Action<string[]> callback = GetCallBack(idSession, operation.Id);
-                string path = new MethodManager().PathForMethod(operation.Name);
-                string script = File.ReadAllText(path);
-                Executor executor = new Executor(4);
-                executor.Add(script, inputsValues.ToArray(), callback);
+                _executor.Add(operation.Name, inputsValues.ToArray(), callback);
             }
         }
 

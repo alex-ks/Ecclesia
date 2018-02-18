@@ -2,8 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,8 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\CompTech.Ict.Executor\CompTech.Ict.Executor.csproj" />
-    <ProjectReference Include="..\..\src\CompTech.Ict.Sample\CompTech.Ict.Sample.csproj" />
+    <Content Include="testMethod.py" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Ecclesia.LocalExecutor.Endpoint\Ecclesia.LocalExecutor.Endpoint.csproj" />
   </ItemGroup>
 
 </Project>

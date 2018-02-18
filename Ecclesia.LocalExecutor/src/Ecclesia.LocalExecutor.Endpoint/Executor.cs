@@ -9,127 +9,100 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Ecclesia.LocalExecutor.Endpoint
 {
-    public enum ExecutorStatus
-    {
-        Idle,
-        Running,
-        Stopped,
-        Error
-    }
-
     public class Executor
     {
-        public ExecutorStatus Status { get; private set; } = ExecutorStatus.Idle;
-        private class InputParameters
+        private const string ScriptName = "source.py";
+
+        private readonly IMethodManager _methodManager;
+
+        private async Task<string> WriteInputsAsync(string[] arguments, string scriptSource, Guid id)
         {
-            public string ScriptSource { get; set; }
-            public string[] Parameters { get; set; }
-            public Action<string[]> CallBack { get; set; }
-        }
-        private Semaphore semaphore;
-        BufferBlock<InputParameters> queue = new BufferBlock<InputParameters>();
-        private string ArgumentsToFiles(string[] arguments, string scriptSource, string id)
-        {
-            string pathTemp = Path.Combine(Path.GetTempPath(), id);
-            Directory.CreateDirectory(pathTemp); // индивидуальная папка
+            var pathTemp = Path.Combine(Path.GetTempPath(), id.ToString());
+            Directory.CreateDirectory(pathTemp);
+
             int count = arguments.Length;
             for (int i = 0; i < count; i++)
             {
-                string pathToArgument = Path.Combine(pathTemp, $"{i}input.txt");
-                File.WriteAllText(pathToArgument, arguments[i]);
+                var pathToArgument = Path.Combine(pathTemp, $"{i}input.txt");
+                await File.WriteAllTextAsync(pathToArgument, arguments[i]);
             }
-            File.WriteAllText(Path.Combine(pathTemp, "source.py"), scriptSource);
+            
+            await File.WriteAllTextAsync(Path.Combine(pathTemp, ScriptName), scriptSource);
             return pathTemp;
         }
 
-        private string[] FilesToOutputs(string path)
+        private async Task<string[]> ReadOutputsAsync(string path)
         {
-            string[] files = Directory.GetFiles(path, "*output.txt");
-            string[] result;
-            if (files != null)
+            var files = Directory.GetFiles(path, "*output.txt");
+            Array.Sort(files);
+            
+            var tasks = files.Select(file => File.ReadAllTextAsync(file))
+                             .ToList();
+
+            List<string> results = new List<string>();
+
+            foreach (var task in tasks)
             {
-                result = new string[files.Length];
-                for (int i = 0; i < files.Length; i++)
-                    result[i] = File.ReadAllText(files[i]);
+                results.Add(await task);
             }
-            else
-                return null;
-            return result;
-        }
-        public Executor(int n)
-        {
-            semaphore = new Semaphore(n, n);
-            Status = ExecutorStatus.Idle;
-            Loop();
+
+            return results.ToArray();
         }
 
-        public void Add(string name, string[] parameters, Action<string[]> callBack) // по одному
+        public Executor(IMethodManager manager)
         {
-            queue.Post(new InputParameters()
+            _methodManager = manager;
+        }
+
+        public Task Add(string name, string[] parameters, Action<string[]> callBack) // по одному
+        {
+            return Task.Run(async () =>
             {
-                ScriptSource = name,
-                Parameters = parameters,
-                CallBack = callBack
+                try
+                {
+                    callBack?.Invoke(await ExecuteOperationAsync(name, parameters));
+                }
+                catch (Exception e)
+                {
+                    callBack(null);
+                    // TODO: add logging
+                    Console.Error.WriteLine(e);
+                }
             });
         }
-        public void EndOfData()
-        {
-            queue.Complete();
-        }
 
-        private async void Loop()
+        private async Task<string[]> ExecuteOperationAsync(string name, string[] parameters)
         {
-            Status = ExecutorStatus.Running;
-
-            while (await queue.OutputAvailableAsync())
+            var scriptSource = _methodManager.GetMethodSource(name);
+            var path = await WriteInputsAsync(parameters, scriptSource, Guid.NewGuid());
+            try
             {
-                InputParameters tmp = queue.Receive();
-
-                semaphore.WaitOne();
-
-                Action taskingOperation = () =>
-                {
-                    if (tmp.CallBack != null)
-                    {
-                        string id = Guid.NewGuid().ToString();
-                        var path = ArgumentsToFiles(tmp.Parameters, tmp.ScriptSource, id);
-                        try
-                        {
-                            OperationRun(path);
-                            string[] result = FilesToOutputs(path);
-                            tmp.CallBack(result);
-                        }
-                        catch(Exception ex)
-                        {
-                            Console.Error.WriteLine(ex.Message);
-                            tmp.CallBack(null);
-                        }
-                        Directory.Delete(path, true);
-                    }
-                    semaphore.Release();
-                };
-#pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
-                Task.Run(taskingOperation);
-#pragma warning restore CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
+                RunScript(path);
+                return await ReadOutputsAsync(path);
+            }
+            finally
+            {
+                Directory.Delete(path, true);
             }
         }
 
-        private void OperationRun(string inputPath)
+        private void RunScript(string inputPath)
         {
             ProcessStartInfo start = new ProcessStartInfo()
             {
                 FileName = "python",
-                Arguments = Path.Combine(inputPath, "source.py") + " " + inputPath,
+                Arguments = String.Join(" ", Path.Combine(inputPath, ScriptName), inputPath),
                 UseShellExecute = false,
-                RedirectStandardOutput = true
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
             };
 
             Process process = new Process();
             process = Process.Start(start);
             process.WaitForExit();
+            
             if (process.ExitCode != 0)
-                throw new Exception($"Ошибка в исполнении скрипта: {process.ExitCode}");
-          
+                throw new Exception($"Script execution error: {process.StandardError.ReadToEnd()}");
         }
     }
 }

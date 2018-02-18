@@ -5,88 +5,96 @@ using Xunit;
 using System.IO;
 using System.Threading;
 using System.Linq;
-using CompTech.Ict.Executor;
+using Ecclesia.LocalExecutor.Endpoint;
+using System.Threading.Tasks;
 
 namespace Ecclesia.LocalExecutor.EndpointTest
 {
     public class ExecutorTest
     {
-        string script = File.ReadAllText("testMethod.py");
         private Executor _executor;
-        
+        private const string scriptName = "script";
+
+        class TestMethodManager : IMethodManager
+        {
+            private string script = File.ReadAllText("testMethod.py");
+
+            public string GetMethodSource(string methodName)
+            {
+                return script;
+            }
+        }
+
         public ExecutorTest()
         {
-            _executor = new Executor.Executor(4);
+            _executor = new Executor(new TestMethodManager());
         }
 
-        [Fact]
-        public void PassingTest()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(10)]
+        [InlineData(42)]
+        public void DoubleValues_SingleInputSingleExecution_SingleOutput(int input)
         {
-            string[,] result = new string[2, 2] { 
-                                                    { "30", "60" },
-                                                    { "100", "200"}
-                                               };
-            string[,] RecieveResult = new string[2, 2];
+            string[] outputs = null;
+
+            _executor.Add(scriptName, new [] { input.ToString() }, os => outputs = os).Wait();
+
+            Assert.NotNull(outputs);
+            Assert.Single(outputs);
             
-            _executor.Add(
-                    script,
-                    new string[] { 10.ToString() }, 
-                    (s) => 
-                    {
-                        RecieveResult[0, 0] = s[0];
-                        RecieveResult[0, 1] = s[1];
-                    }
-            );
-            _executor.Add(
-                    script, 
-                    new string[]
-                    {
-                        20.ToString(),
-                        25.ToString()
-                    },
-                    (s) => 
-                    {
-                        RecieveResult[1, 0] = s[0];
-                        RecieveResult[1, 1] = s[1];
-                    }
-            );
-            _executor.EndOfData();
-            Thread.Sleep(1000);
-        
-            Assert.Equal(result, RecieveResult);
+            Assert.True(int.TryParse(outputs[0], out int result));
+            Assert.Equal(input * 2, result);
         }
 
         [Fact]
-        public void PassingTestWithTwoThread()
+        public void DoubleValues_SingleInputMultipleExecutions_SingleOutput()
         {
-            string[,] result = new string[10, 2];
-            string[,] recieveResult = new string[10, 2];
-            foreach (var i in Enumerable.Range(0, 10))
+            var inputs = Enumerable.Range(0, 10).ToArray();
+            var outputs = new string[inputs.Length] [];
+
+            var tasks = inputs
+                .Select(i => _executor.Add(scriptName, new [] { i.ToString() }, os => outputs[i] = os))
+                .ToArray();
+
+            Task.WaitAll(tasks);
+
+            Assert.All(outputs, output => 
             {
-                int k = i + 1;
-                int outputValue = 10 + 2 * (k * 5 + k * 10);
-                result[i, 0] = outputValue.ToString();
-                result[i, 1] = (2 * outputValue).ToString();
-                _executor.Add(
-                       script,
-                       new string[]
-                       {
-                           (k*5).ToString(),
-                           (k*10).ToString()
-                       },
-                       (s) =>
-                       {
-                           recieveResult[i, 0] = s[0];
-                           recieveResult[i, 1] = s[1]; 
-                       }
-                       
-                );
-            }
+                Assert.NotNull(output);
+                Assert.Single(output);
+            });
 
-            _executor.EndOfData();
-            Thread.Sleep(5000);
+            var pairs = Enumerable.Zip(inputs, outputs, (input, output) => (input, output[0]));
 
-            Assert.Equal(result, recieveResult);
+            Assert.All(pairs, pair => 
+            {
+                var (input, output) = pair;
+                Assert.True(int.TryParse(output, out int result));
+                Assert.Equal(input * 2, result);
+            });
+        }
+
+        [Theory]
+        [InlineData(1, 2)]
+        [InlineData(1, 2, 3, 4)]
+        [InlineData(3, 7, 42, 256, 1024)]
+        public void DoubleValues_SingleTaskMultipleInputs_MultipleOutputs(params int[] inputs)
+        {
+            string[] outputs = null;
+            _executor.Add(scriptName, inputs.Select(i => i.ToString()).ToArray(), os => outputs = os).Wait();
+            
+            Assert.NotNull(outputs);
+            Assert.Equal(inputs.Length, outputs.Length);
+            
+            var pairs = Enumerable.Zip(inputs, outputs, (input, output) => (input, output));
+
+            Assert.All(pairs, pair => 
+            {
+                Assert.True(int.TryParse(pair.output, out int result));
+                Assert.Equal(pair.input * 2, result);
+            });
         }
     }
 }

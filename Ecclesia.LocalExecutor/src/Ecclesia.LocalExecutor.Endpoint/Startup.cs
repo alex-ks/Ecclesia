@@ -28,6 +28,8 @@ namespace Ecclesia.LocalExecutor.Endpoint
         {
             services.AddCors();
             services.AddSingleton<SessionManager>();
+            services.AddSingleton<Executor>();
+            services.AddSingleton<IMethodManager, MethodManager>();
             services.AddMvc();
         }
 

@@ -4,18 +4,21 @@ import os
 if __name__ == "__main__":
     result = [10]
     
-    argFiles  = []
+    args  = []
     nameFiles = []
-    
-    nameFiles = os.listdir(sys.argv[1])
+
+    nameFiles = sorted(os.listdir(sys.argv[1]))
     nameFiles.remove("source.py")
-    for i in range(len(nameFiles)): 
-        with open(sys.argv[1]+"\\"+nameFiles[i], 'r') as f:
-            arg = f.readline()
-        argFiles.append(int(arg)) #строки входов
-        result[0] = result[0] + 2*argFiles[i]
-    result.append(result[0]*2)
+
+    for i in range(len(nameFiles)):
+        inputPath = os.path.join(sys.argv[1], nameFiles[i])
+        with open(inputPath, 'r') as input:
+            arg = input.readline()
+        args.append(int(arg))
+        
+    result = map(lambda x: x * 2, args)
+
     for i in range(len(result)):
-        with open(sys.argv[1]+"\\"+str(i)+"output.txt", 'w') as f:
-            f.write(str(result[i]))
-    print(1)
+        outputPath = os.path.join(sys.argv[1], str(i) + "output.txt")
+        with open(outputPath, 'w') as output:
+            output.write(str(result[i]))
