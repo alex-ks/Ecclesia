@@ -13,10 +13,9 @@ namespace Ecclesia.LocalExecutor.Endpoint
     public class SessionManager
     {
         private readonly Executor _executor;
-        private Dictionary<Guid, ComputationGraph> sessionDictionary;
-        private Dictionary<Guid, SessionStatus> sessionStatus;
-        private object lockListSession = new object();
-        private object lockUpdateStatus = new object();
+        private Dictionary<Guid, ComputationGraph> _sessionDictionary;
+        private Dictionary<Guid, SessionStatus> _sessionStatus;
+        private object _lockGuard = new object();
         private readonly ILogger _logger;
 
         private Action<string[]> GetCallBack (Guid idSession, int idOperation)
@@ -27,8 +26,8 @@ namespace Ecclesia.LocalExecutor.Endpoint
         public SessionManager(ILogger<SessionManager> logger, Executor executor)
         {
             _executor = executor;
-            sessionDictionary = new Dictionary<Guid, ComputationGraph>();
-            sessionStatus = new Dictionary<Guid, SessionStatus>();
+            _sessionDictionary = new Dictionary<Guid, ComputationGraph>();
+            _sessionStatus = new Dictionary<Guid, SessionStatus>();
             _logger = logger;
             _logger.LogInformation("Session manager a created!");
         }
@@ -36,9 +35,9 @@ namespace Ecclesia.LocalExecutor.Endpoint
         public Guid StartSession(ComputationGraph session)
         {
             Guid idSession = Guid.NewGuid();
-            lock (lockListSession)
+            lock (_lockGuard)
             {
-                sessionDictionary.Add(idSession, session);
+                _sessionDictionary.Add(idSession, session);
             }
             _logger.LogInformation($"Create session with id: {idSession}");
             List<OperationStatus> opStatus = new List<OperationStatus>();
@@ -46,9 +45,9 @@ namespace Ecclesia.LocalExecutor.Endpoint
             {
                 opStatus.Add(new OperationStatus { Id = operation.Id, Status = OperationState.Awaits });
             }
-            lock (lockUpdateStatus)
+            lock (_lockGuard)
             {
-                sessionStatus.Add(idSession, new SessionStatus 
+                _sessionStatus.Add(idSession, new SessionStatus 
                 { 
                     OperationStatus = opStatus, 
                     MnemonicsTable = session.MnemonicsTable 
@@ -57,11 +56,11 @@ namespace Ecclesia.LocalExecutor.Endpoint
 
             GetLogSession(idSession);
 
-            lock (lockListSession)
+            lock (_lockGuard)
             {
                 List<int> idAvailableOperation = SessionUtilities.GetIDAvailableOperation(
-                                                        sessionStatus[idSession].OperationStatus,
-                                                        sessionDictionary[idSession].Dependecies);
+                                                        _sessionStatus[idSession].OperationStatus,
+                                                        _sessionDictionary[idSession].Dependecies);
                 OperationsToExecute(idSession, idAvailableOperation);  
             }                        
             return idSession;
@@ -70,7 +69,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
         private void GetLogSession(Guid idSession)
         {
             string str = $"\r\nSession {idSession}:\r\n";
-            foreach(OperationStatus each in sessionStatus[idSession].OperationStatus)
+            foreach(OperationStatus each in _sessionStatus[idSession].OperationStatus)
             {
                 str += $"Operation : {each.Id}, status: {each.Status}\r\n";
             }
@@ -79,7 +78,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
 
         private void GetLogVariable(Guid idSession)
         {
-            var table = sessionStatus[idSession].MnemonicsTable;
+            var table = _sessionStatus[idSession].MnemonicsTable;
             string tmp = $"\r\nSession {idSession}:\r\n";
             foreach(var each in table)
             {
@@ -90,23 +89,23 @@ namespace Ecclesia.LocalExecutor.Endpoint
 
         public void Notify(Guid idSession, int idOperation, string[] outputs)
         {
-            lock (lockUpdateStatus)
+            lock (_lockGuard)
             {
-                OperationStatus operationSt = sessionStatus[idSession].OperationStatus[idOperation];
+                OperationStatus operationSt = _sessionStatus[idSession].OperationStatus[idOperation];
                 if (outputs != null)
                 {
                     SessionUtilities.OperationCompleted(operationSt, outputs);
-                    ComputationGraph session = sessionDictionary[idSession];
-                    SessionUtilities.UpdateMnemonicValues(sessionStatus[idSession].MnemonicsTable,
+                    ComputationGraph session = _sessionDictionary[idSession];
+                    SessionUtilities.UpdateMnemonicValues(_sessionStatus[idSession].MnemonicsTable,
                                                             session.Operations[idOperation].Output,
                                                             outputs);
                     GetLogSession(idSession);
 
-                    if (!SessionUtilities.SessionCompleted(sessionStatus[idSession].OperationStatus))
+                    if (!SessionUtilities.SessionCompleted(_sessionStatus[idSession].OperationStatus))
                     {
                         List<int> idAvailableOperation = SessionUtilities.GetIDAvailableOperation(
-                                                                        sessionStatus[idSession].OperationStatus,
-                                                                        sessionDictionary[idSession].Dependecies);
+                                                                        _sessionStatus[idSession].OperationStatus,
+                                                                        _sessionDictionary[idSession].Dependecies);
                         OperationsToExecute(idSession, idAvailableOperation);
                     }
                     else
@@ -124,7 +123,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
 
         public void OperationsToExecute(Guid idSession, List<int> idAvailableOperation)
         {
-            var session = sessionDictionary[idSession];
+            var session = _sessionDictionary[idSession];
             var operationSession = session.Operations;
             var mnemonicsTableSession = session.MnemonicsTable;
             Console.WriteLine($"ID available operation for session - {idSession} " +
@@ -135,7 +134,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
             {
                 
                 List<string> inputsValues = GetInputsValues(operation.Input,mnemonicsTableSession);
-                SessionUtilities.OperationRunning(sessionStatus[idSession].OperationStatus[operation.Id]);
+                SessionUtilities.OperationRunning(_sessionStatus[idSession].OperationStatus[operation.Id]);
                 Action<string[]> callback = GetCallBack(idSession, operation.Id);
                 _executor.Add(operation.Name, inputsValues.ToArray(), callback);
             }
@@ -160,43 +159,44 @@ namespace Ecclesia.LocalExecutor.Endpoint
 
         public void StopSession(Guid id)
         {
-            ComputationGraph session = sessionDictionary[id];
-            SessionStatus status = sessionStatus[id];
+            lock (_lockGuard)
+            {
+                if (!_sessionDictionary.ContainsKey(id))
+                {
+                    throw new ArgumentException($"Session {id} not found!");
+                }
 
-            if (SessionUtilities.SessionCompleted(status.OperationStatus))
-            {
-                Console.WriteLine("Session COMPLITED");
-                return;
-                //сессия закончена - всё ОК
-            }
-            else
-                if (SessionUtilities.SessionFaild(status.OperationStatus))
-            {
-                foreach(OperationStatus operation in status.OperationStatus.Where(op => op.Status == OperationState.Awaits))
+                ComputationGraph session = _sessionDictionary[id];
+                SessionStatus status = _sessionStatus[id];
+
+                if (SessionUtilities.SessionCompleted(status.OperationStatus))
                 {
-                    operation.Status = OperationState.Aborted;
+                    _logger.LogInformation("Session {0} requested to stop after completion", id);
                 }
-                Console.WriteLine("Session FAILD");
-                //одна операция сломалась значит другие отменяем
-                //в целом сессия Faild
-            }
-            else
-            {
-                foreach (OperationStatus operation in status.OperationStatus.Where(op => op.Status == OperationState.Awaits))
+                else if (SessionUtilities.SessionFaild(status.OperationStatus))
                 {
-                    operation.Status = OperationState.Aborted;
+                    foreach(OperationStatus operation in status.OperationStatus.Where(op => op.Status == OperationState.Awaits))
+                    {
+                        operation.Status = OperationState.Aborted;
+                    }
+                    _logger.LogError("Session {0} requested to stop but was aborted");
                 }
-                Console.WriteLine("Session Aborted");
-                //сессия была отменена пользователем
-                //в целом сессия Aborted
+                else
+                {
+                    foreach (OperationStatus operation in status.OperationStatus.Where(op => op.Status == OperationState.Awaits))
+                    {
+                        operation.Status = OperationState.Aborted;
+                    }
+                    _logger.LogInformation("Aborting session {0} by user request", id);
+                }
             }
         }
 
         public SessionStatus GetStatusSession(Guid idSession)
         {
-            if (sessionStatus.ContainsKey(idSession))
+            if (_sessionStatus.ContainsKey(idSession))
             {
-                return sessionStatus[idSession];
+                return _sessionStatus[idSession];
             }
             else
             {

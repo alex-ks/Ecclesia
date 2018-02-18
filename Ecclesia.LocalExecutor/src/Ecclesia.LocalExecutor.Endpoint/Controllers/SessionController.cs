@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Ecclesia.LocalExecutor.Endpoint.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Ecclesia.LocalExecutor.Endpoint.Controllers
 {
@@ -11,37 +12,56 @@ namespace Ecclesia.LocalExecutor.Endpoint.Controllers
     public class SessionController : Controller
     {
         private SessionManager _manager;
+        private readonly ILogger _logger;
 
-        // Context will be passed via dependency injection
-        public SessionController(SessionManager manager)
+        public SessionController(SessionManager manager, Logger<SessionController> logger)
         {
             _manager = manager;
+            _logger = logger;
         }
         
-        // GET api/session/5
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)
         {            
-            var session = _manager.GetStatusSession(id);
-            return Ok(session);
+            try
+            {
+                var session = _manager.GetStatusSession(id);
+                return Ok(session);
+            }
+            catch (ArgumentException e)
+            {
+                _logger.LogError(e.ToString());
+                return BadRequest(e.Message);
+            }
         }
 
-        // POST api/session
         [HttpPost]
-        public IActionResult Post([FromBody]ComputationGraph graph)
+        public IActionResult Post([FromBody]SessionStartRequest request)
         {
-            var s = _manager.StartSession(graph);
-            //validation 
+            if (request == null)
+            {
+                _logger.LogError("Could not parse user request");
+                return BadRequest("Incorrect input");
+            }
 
-            return Ok(s);
+            var sessionId = _manager.StartSession(request.ComputationGraph);
+
+            return Ok(sessionId);
         }
 
-        // DELETE api/session/{id}
         [HttpDelete("{id}")]
         public IActionResult Delete(Guid id)
         {
-            _manager.StopSession(id);
-            return Ok();			
+            try
+            {
+                _manager.StopSession(id);
+                return Ok();
+            }
+            catch (ArgumentException e)
+            {
+                _logger.LogError(e.ToString());
+                return BadRequest(e.Message);
+            }
         }
     }
 }
