@@ -25,7 +25,7 @@ namespace Ecclesia.LocalExecutor.Endpoint.Controllers
         {            
             try
             {
-                var session = _manager.GetStatusSession(id);
+                var session = _manager.GetSessionStatus(id);
                 return Ok(session);
             }
             catch (ArgumentException e)

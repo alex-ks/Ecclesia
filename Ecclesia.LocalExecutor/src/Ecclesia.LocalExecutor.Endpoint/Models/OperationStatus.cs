@@ -12,6 +12,6 @@ namespace Ecclesia.LocalExecutor.Endpoint.Models
         public int Id { get; set; }
 
         [JsonRequired]
-        public OperationState Status { get; set; }
+        public OperationState State { get; set; }
     }
 }
