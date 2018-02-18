@@ -38,75 +38,74 @@ namespace Ecclesia.LocalExecutor.Endpoint
             lock (_lockGuard)
             {
                 _sessionDictionary.Add(idSession, session);
-            }
-            _logger.LogInformation($"Create session with id: {idSession}");
-            List<OperationStatus> opStatus = new List<OperationStatus>();
-            foreach (Operation operation in session.Operations)
-            {
-                opStatus.Add(new OperationStatus { Id = operation.Id, Status = OperationState.Awaits });
-            }
-            lock (_lockGuard)
-            {
+            
+                _logger.LogInformation($"Create session with id: {idSession}");
+                
                 _sessionStatus.Add(idSession, new SessionStatus 
                 { 
-                    OperationStatus = opStatus, 
+                    OperationStatus = session.Operations
+                        .Select(op => new OperationStatus { Id = op.Id, Status = OperationState.Awaits })
+                        .ToList(),
                     MnemonicsTable = session.MnemonicsTable 
                 });
+
+                LogSessionStatus(idSession);
+
+                List<int> availableOperations = SessionUtilities.GetIDAvailableOperation(
+                    _sessionStatus[idSession].OperationStatus,
+                    _sessionDictionary[idSession].Dependecies);
+                ExecuteOperations(idSession, availableOperations);
+
+                return idSession;
+            }
+        }
+
+        private void LogSessionStatus(Guid id)
+        {
+            IEnumerable<string> getLogParts()
+            {
+                yield return $"Session {id}:";
+                foreach (var status in _sessionStatus[id].OperationStatus)
+                    yield return status.Status.ToString();
             }
 
-            GetLogSession(idSession);
+            _logger.LogInformation(string.Join(Environment.NewLine, getLogParts()));
+        }
 
+        private void LogSessionMnemonics(Guid id)
+        {
+            IEnumerable<string> getLogParts()
+            {
+                yield return $"Session {id}:";
+                foreach (var pair in _sessionStatus[id].MnemonicsTable)
+                    yield return $"name: {pair.Key}, value: {pair.Value.Value}";
+            }
+
+            _logger.LogInformation(string.Join(Environment.NewLine, getLogParts()));
+        }
+
+        public void Notify(Guid idSession, int operationId, string[] outputs)
+        {
             lock (_lockGuard)
             {
-                List<int> idAvailableOperation = SessionUtilities.GetIDAvailableOperation(
-                                                        _sessionStatus[idSession].OperationStatus,
-                                                        _sessionDictionary[idSession].Dependecies);
-                OperationsToExecute(idSession, idAvailableOperation);  
-            }                        
-            return idSession;
-        }
-
-        private void GetLogSession(Guid idSession)
-        {
-            string str = $"\r\nSession {idSession}:\r\n";
-            foreach(OperationStatus each in _sessionStatus[idSession].OperationStatus)
-            {
-                str += $"Operation : {each.Id}, status: {each.Status}\r\n";
-            }
-            Console.WriteLine(str);
-        }
-
-        private void GetLogVariable(Guid idSession)
-        {
-            var table = _sessionStatus[idSession].MnemonicsTable;
-            string tmp = $"\r\nSession {idSession}:\r\n";
-            foreach(var each in table)
-            {
-                tmp += $"var: {each.Key}, val: {each.Value.Value}\r\n";
-            }
-            _logger.LogInformation(tmp);
-        }
-
-        public void Notify(Guid idSession, int idOperation, string[] outputs)
-        {
-            lock (_lockGuard)
-            {
-                OperationStatus operationSt = _sessionStatus[idSession].OperationStatus[idOperation];
+                OperationStatus operationSt = _sessionStatus[idSession].OperationStatus[operationId];
                 if (outputs != null)
                 {
                     SessionUtilities.OperationCompleted(operationSt, outputs);
-                    ComputationGraph session = _sessionDictionary[idSession];
-                    SessionUtilities.UpdateMnemonicValues(_sessionStatus[idSession].MnemonicsTable,
-                                                            session.Operations[idOperation].Output,
-                                                            outputs);
-                    GetLogSession(idSession);
+
+                    var session = _sessionDictionary[idSession];
+                    SessionUtilities.UpdateMnemonicValues(
+                        _sessionStatus[idSession].MnemonicsTable,
+                        session.Operations[operationId].Output,
+                        outputs);
+                    LogSessionStatus(idSession);
 
                     if (!SessionUtilities.SessionCompleted(_sessionStatus[idSession].OperationStatus))
                     {
                         List<int> idAvailableOperation = SessionUtilities.GetIDAvailableOperation(
-                                                                        _sessionStatus[idSession].OperationStatus,
-                                                                        _sessionDictionary[idSession].Dependecies);
-                        OperationsToExecute(idSession, idAvailableOperation);
+                            _sessionStatus[idSession].OperationStatus,
+                            _sessionDictionary[idSession].Dependecies);
+                        ExecuteOperations(idSession, idAvailableOperation);
                     }
                     else
                     {
@@ -121,7 +120,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
             }
         }
 
-        public void OperationsToExecute(Guid idSession, List<int> idAvailableOperation)
+        private void ExecuteOperations(Guid idSession, List<int> idAvailableOperation)
         {
             var session = _sessionDictionary[idSession];
             var operationSession = session.Operations;
