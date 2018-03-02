@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace Ecclesia.MessageQueue.RabbitMQ
 {
-    public class MessageQueue<TMessage> : IMessageQueue<TMessage>, IDisposable
+    public class RmqMessageQueue<TMessage> : IMessageQueue<TMessage>, IDisposable
     {
         private const string DelayedTypeArgKey = "x-delayed-type";
         private const string ExchangeType = "direct";
@@ -19,10 +20,11 @@ namespace Ecclesia.MessageQueue.RabbitMQ
 
         private readonly IConnection _connection;
         private readonly IModel _channel;
+        private readonly AsyncEventingBasicConsumer _consumer;
 
-        public event Action<TMessage> MessageReceived;
+        public event Func<TMessage, Task> MessageReceived;
 
-        public MessageQueue(string hostName, string userName, string password)
+        public RmqMessageQueue(string hostName, string userName, string password)
         {
             var factory = new ConnectionFactory
             {
@@ -67,12 +69,12 @@ namespace Ecclesia.MessageQueue.RabbitMQ
                 routingKey: RoutingKey
             );
 
-            var consumer = new EventingBasicConsumer(_channel);
-            consumer.Received += (model, eventArgs) =>
+            _consumer = new AsyncEventingBasicConsumer(_channel);
+            _consumer.Received += async (model, eventArgs) =>
             {
                 var str = Encoding.UTF8.GetString(eventArgs.Body);
                 var message = JsonConvert.DeserializeObject<TMessage>(str);
-                MessageReceived?.Invoke(message);
+                await MessageReceived?.Invoke(message);
                 _channel.BasicAck(
                     deliveryTag: eventArgs.DeliveryTag,
                     multiple: false
@@ -82,7 +84,7 @@ namespace Ecclesia.MessageQueue.RabbitMQ
             _channel.BasicConsume(
                 queue: QueueName,
                 autoAck: false,
-                consumer: consumer
+                consumer: _consumer
             );
         }
 
@@ -117,8 +119,9 @@ namespace Ecclesia.MessageQueue.RabbitMQ
         public void Dispose()
         {
             using (_connection)
+            using (_channel)
             {
-                _channel.Dispose();
+                _channel.BasicCancel(_consumer.ConsumerTag);
             }
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Ecclesia.MessageQueue
 {
@@ -6,6 +7,6 @@ namespace Ecclesia.MessageQueue
     {
         void Push(TMessage message);
         void Push(TMessage message, TimeSpan delay);
-        event Action<TMessage> MessageReceived;
+        event Func<TMessage, Task> MessageReceived;
     }
 }
