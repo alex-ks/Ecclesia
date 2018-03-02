@@ -8,6 +8,13 @@ using RabbitMQ.Client.Events;
 
 namespace Ecclesia.MessageQueue.RabbitMQ
 {
+    public struct RmqMessageQueueParams
+    {
+        public string HostName { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
+    }
+
     public class RmqMessageQueue<TMessage> : IMessageQueue<TMessage>, IDisposable
     {
         private const string DelayedTypeArgKey = "x-delayed-type";
@@ -23,6 +30,13 @@ namespace Ecclesia.MessageQueue.RabbitMQ
         private readonly AsyncEventingBasicConsumer _consumer;
 
         public event Func<TMessage, Task> MessageReceived;
+
+        public RmqMessageQueue(RmqMessageQueueParams queueParams) : this(queueParams.HostName,
+                                                                         queueParams.UserName,
+                                                                         queueParams.Password) 
+        {
+
+        }
 
         public RmqMessageQueue(string hostName, string userName, string password)
         {
