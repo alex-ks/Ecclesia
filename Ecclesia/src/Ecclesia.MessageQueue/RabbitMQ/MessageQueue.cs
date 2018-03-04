@@ -31,6 +31,8 @@ namespace Ecclesia.MessageQueue.RabbitMQ
 
         public event Func<TMessage, Task> MessageReceived;
 
+        public bool Persistent { get; set; } = true;
+
         public RmqMessageQueue(RmqMessageQueueParams queueParams) : this(queueParams.HostName,
                                                                          queueParams.UserName,
                                                                          queueParams.Password) 
@@ -112,7 +114,7 @@ namespace Ecclesia.MessageQueue.RabbitMQ
         public void Push(TMessage message, TimeSpan delay)
         {
             var properties = _channel.CreateBasicProperties();
-            properties.Persistent = true;
+            properties.Persistent = Persistent;
 
             var headers = new Dictionary<string, object>
             {
