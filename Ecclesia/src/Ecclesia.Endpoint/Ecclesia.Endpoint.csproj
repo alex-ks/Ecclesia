@@ -18,6 +18,22 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ecclesia.DataAccessLayer\Ecclesia.DataAccessLayer.csproj" />
+    <ProjectReference Include="..\Ecclesia.Models\Ecclesia.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="EndpointResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EndpointResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="EndpointResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EndpointResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

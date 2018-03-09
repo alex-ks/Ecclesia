@@ -5,12 +5,21 @@ using Newtonsoft.Json;
 
 namespace Ecclesia.DataAccessLayer.Models
 {
+    public enum SessionState
+    {
+        Running = 0,
+        Complete = 1,
+        Aborted = 2
+    }
+
     public class Session
     {
         public long Id { get; set; }
         public long UserId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime? LastPolling { get; set; }
+
+        public SessionState State { get; set; }
         
         public ComputationGraph OriginalGraph
         {
