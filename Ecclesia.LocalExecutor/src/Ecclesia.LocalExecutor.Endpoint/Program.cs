@@ -14,12 +14,16 @@ namespace Ecclesia.LocalExecutor.Endpoint
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            var hostingConfig = new ConfigurationBuilder()
+                .AddJsonFile("hosting.json")
+                .Build();
+            BuildWebHost(args, hostingConfig).Run();
         }
         
-        public static IWebHost BuildWebHost(string[] args) =>
+        public static IWebHost BuildWebHost(string[] args, IConfiguration hostingConf) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .UseUrls(hostingConf["server.url"])
                 .Build();
     }
 }
