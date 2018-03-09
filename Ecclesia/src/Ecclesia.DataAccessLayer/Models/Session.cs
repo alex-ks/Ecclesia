@@ -9,7 +9,8 @@ namespace Ecclesia.DataAccessLayer.Models
     {
         Running = 0,
         Complete = 1,
-        Aborted = 2
+        Aborted = 2,
+        Failed = 3
     }
 
     public class Session
