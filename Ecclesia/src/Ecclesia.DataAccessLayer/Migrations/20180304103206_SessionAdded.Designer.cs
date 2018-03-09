@@ -10,7 +10,7 @@ using System;
 
 namespace Ecclesia.DataAccessLayer.Migrations
 {
-    [DbContext(typeof(ApplicationContext))]
+    [DbContext(typeof(PsqlContext))]
     [Migration("20180304103206_SessionAdded")]
     partial class SessionAdded
     {
