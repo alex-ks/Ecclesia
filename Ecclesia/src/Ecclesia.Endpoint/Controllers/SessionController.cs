@@ -30,8 +30,7 @@ namespace Ecclesia.Endpoint.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateSessionAsync([FromBody] SessionStartRequest startRequest)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-
+            var user = await AppUser();
             var sessionId = await _sessionManager.StartSessionAsync(user, startRequest);
 
             return Ok(new { SessionId = sessionId });

@@ -2,15 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Ecclesia.ExecutorClient
 {
     public interface IExecutor
     {
-        string StartSession(SessionStartRequest startRequest);
+        Task<string> StartSessionAsync(SessionStartRequest startRequest);
 
-        SessionStatus GetSessionStatus(string sessionId);
+        Task<SessionStatus> GetSessionStatusAsync(string sessionId);
 
-        void AbortSession(string sessionId);
+        Task AbortSessionAsync(string sessionId);
     }
 }

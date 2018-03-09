@@ -31,7 +31,7 @@ namespace Ecclesia.LocalExecutor.Endpoint.Controllers
             catch (ArgumentException e)
             {
                 _logger.LogError(e.ToString());
-                return BadRequest(e.Message);
+                return BadRequest(new { Error = e.Message });
             }
         }
 
@@ -41,12 +41,12 @@ namespace Ecclesia.LocalExecutor.Endpoint.Controllers
             if (request == null)
             {
                 _logger.LogError("Could not parse user request");
-                return BadRequest("Incorrect input");
+                return BadRequest(new { Error = "Incorrect input" });
             }
 
             var sessionId = _manager.StartSession(request.ComputationGraph);
 
-            return Ok(sessionId);
+            return Ok(new { SessionId = sessionId });
         }
 
         [HttpDelete("{id}")]
@@ -60,7 +60,7 @@ namespace Ecclesia.LocalExecutor.Endpoint.Controllers
             catch (ArgumentException e)
             {
                 _logger.LogError(e.ToString());
-                return BadRequest(e.Message);
+                return BadRequest(new { Error = e.Message });
             }
         }
     }

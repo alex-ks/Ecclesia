@@ -27,7 +27,7 @@ namespace Ecclesia.Endpoint
                 var executor = _services.GetService<IExecutor>();
                 var poller = _services.GetService<Poller>();
 
-                var executionId = executor.StartSession(startRequest);
+                var executionId = await executor.StartSessionAsync(startRequest);
 
                 var session = new Session
                 {
@@ -47,7 +47,6 @@ namespace Ecclesia.Endpoint
                 await context.Sessions.AddAsync(session);
                 await context.SaveChangesAsync();
 
-                // TODO: start polling
                 poller.StartTracking(session.Id);
 
                 return session.Id;

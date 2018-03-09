@@ -44,7 +44,7 @@ namespace Ecclesia.Endpoint
                 var session = await context.Sessions.FindAsync(sessionId);
                 var executor = _services.GetService<IExecutor>();
 
-                var status = executor.GetSessionStatus(session.ExecutionId);
+                var status = await executor.GetSessionStatusAsync(session.ExecutionId);
                 session.OperationsStatus = status.OperationStatus;
                 session.MnemonicsTable = status.MnemonicsTable;
                 session.LastPolling = DateTime.Now;
