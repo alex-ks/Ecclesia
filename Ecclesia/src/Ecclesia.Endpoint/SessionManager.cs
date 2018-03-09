@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Ecclesia.DataAccessLayer.Models;
 using Ecclesia.Models;
 using Ecclesia.ExecutorClient;
+using Ecclesia.Identity.Models;
 
 namespace Ecclesia.Endpoint
 {
@@ -21,7 +22,7 @@ namespace Ecclesia.Endpoint
 
         internal async Task<long> StartSessionAsync(ApplicationUser user, SessionStartRequest startRequest)
         {
-            using (var context = _services.GetService<ApplicationContext>())
+            using (var context = _services.GetService<EcclesiaContext>())
             {
                 var executor = _services.GetService<IExecutor>();
                 var poller = _services.GetService<Poller>();
@@ -55,7 +56,7 @@ namespace Ecclesia.Endpoint
 
         internal async Task<object> GetSessionStatusAsync(ApplicationUser user, long id)
         {
-            using (var context = _services.GetService<ApplicationContext>())
+            using (var context = _services.GetService<EcclesiaContext>())
             {
                 var session = await context.Sessions.FindAsync(id);
 
@@ -74,7 +75,7 @@ namespace Ecclesia.Endpoint
 
         internal IEnumerable<SessionStatus> GetSessions(ApplicationUser applicationUser)
         {
-            using (var context = _services.GetService<ApplicationContext>())
+            using (var context = _services.GetService<EcclesiaContext>())
             {
                 return from session in context.Sessions
                        where session.UserId == applicationUser.Id

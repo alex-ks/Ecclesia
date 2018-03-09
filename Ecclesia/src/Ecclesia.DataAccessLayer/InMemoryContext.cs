@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ecclesia.DataAccessLayer
 {
-    public class InMemoryContext : ApplicationContext
+    public class InMemoryContext : EcclesiaContext
     {
         private const string InMemoryDatabaseName = "ecclesia";
 

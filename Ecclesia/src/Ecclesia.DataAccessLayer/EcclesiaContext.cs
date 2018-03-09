@@ -1,11 +1,12 @@
 using Ecclesia.DataAccessLayer.Configurations;
 using Ecclesia.DataAccessLayer.Models;
+using Ecclesia.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecclesia.DataAccessLayer
 {
-    public abstract class ApplicationContext : IdentityDbContext<ApplicationUser, ApplicationRole, long>
+    public abstract class EcclesiaContext : ApplicationContext
     {
         public DbSet<Session> Sessions { get; set; }
 

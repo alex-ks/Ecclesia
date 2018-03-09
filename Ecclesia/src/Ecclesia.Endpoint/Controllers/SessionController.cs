@@ -1,5 +1,6 @@
 ﻿using Ecclesia.DataAccessLayer;
 using Ecclesia.DataAccessLayer.Models;
+using Ecclesia.Identity.Models;
 using Ecclesia.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

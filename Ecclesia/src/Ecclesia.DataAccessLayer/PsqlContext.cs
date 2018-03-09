@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ecclesia.DataAccessLayer
 {
-    public class PsqlContext : ApplicationContext
+    public class PsqlContext : EcclesiaContext
     {
         private readonly string _connectionString;
 

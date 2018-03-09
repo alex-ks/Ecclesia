@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Ecclesia.Identity\Ecclesia.Identity.csproj" />
     <ProjectReference Include="..\Ecclesia.Models\Ecclesia.Models.csproj" />
   </ItemGroup>
 </Project>

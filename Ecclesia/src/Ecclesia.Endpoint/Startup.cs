@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Ecclesia.DataAccessLayer;
 using Ecclesia.DataAccessLayer.Models;
 using Ecclesia.ExecutorClient;
+using Ecclesia.Identity.Models;
 using Ecclesia.MessageQueue;
 using Ecclesia.MessageQueue.RabbitMQ;
 using Microsoft.AspNetCore.Builder;
@@ -41,9 +42,7 @@ namespace Ecclesia.Endpoint
                 .AddEntityFrameworkStores<PsqlContext>()
                 .AddDefaultTokenProviders();
 
-
-
-            services.AddTransient<ApplicationContext, PsqlContext>(_ => 
+            services.AddTransient<EcclesiaContext, PsqlContext>(_ => 
                 new PsqlContext(Configuration.GetConnectionString("psql")));
 
             var queueEntry = Configuration.GetSection("RabbitMQ");
