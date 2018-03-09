@@ -14,7 +14,7 @@ namespace Ecclesia.LocalExecutor.Endpoint.Controllers
         private SessionManager _manager;
         private readonly ILogger _logger;
 
-        public SessionController(SessionManager manager, Logger<SessionController> logger)
+        public SessionController(SessionManager manager, ILogger<SessionController> logger)
         {
             _manager = manager;
             _logger = logger;

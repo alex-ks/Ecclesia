@@ -8,8 +8,8 @@ namespace Ecclesia.Models
         [JsonRequired]
         public ComputationGraph ComputationGraph { get; set; }
 
-        public DateTime Deadline { get; set; }
+        public DateTime? Deadline { get; set; }
 
-        public decimal Budget { get; set; }
+        public decimal? Budget { get; set; }
     }
 }

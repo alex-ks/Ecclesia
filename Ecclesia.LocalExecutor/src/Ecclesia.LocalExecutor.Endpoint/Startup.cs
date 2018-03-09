@@ -27,6 +27,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            services.AddLogging();
             services.AddSingleton<SessionManager>();
             services.AddSingleton<Executor>();
             services.AddSingleton<IMethodManager, MethodManager>();

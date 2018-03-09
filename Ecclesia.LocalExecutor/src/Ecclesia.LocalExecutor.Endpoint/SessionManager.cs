@@ -54,7 +54,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
                 LogSessionStatus(sessionId);
 
                 List<int> availableOperations = 
-                    session.GetAvailableOperationsIds(_sessionGraphs[sessionId].Dependecies);
+                    session.GetAvailableOperationsIds(_sessionGraphs[sessionId].Dependencies);
                 EnqueueOperationsExecution(sessionId, availableOperations);
 
                 return sessionId;
@@ -104,7 +104,7 @@ namespace Ecclesia.LocalExecutor.Endpoint
                     if (!session.IsCompleted())
                     {
                         var availableOperationsIds = 
-                            session.GetAvailableOperationsIds(_sessionGraphs[sessionId].Dependecies);
+                            session.GetAvailableOperationsIds(_sessionGraphs[sessionId].Dependencies);
                         EnqueueOperationsExecution(sessionId, availableOperationsIds);
                     }
                     else

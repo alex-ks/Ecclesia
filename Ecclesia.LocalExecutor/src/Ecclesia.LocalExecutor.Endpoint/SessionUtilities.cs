@@ -12,7 +12,13 @@ namespace Ecclesia.LocalExecutor.Endpoint
         public static void RegisterOperationResult(this SessionStatus session, string[] operationOut, string[] newOut)
         {
             foreach (var (name, value) in Enumerable.Zip(operationOut, newOut, (name, value) => (name, value)))
-                session.MnemonicsTable.Add(name, new MnemonicsValue { Value = value });
+            {
+                session.MnemonicsTable.Add(name, new MnemonicsValue 
+                { 
+                    Value = value, 
+                    DataType = new DataType { Name = "any" } 
+                });
+            }
         }
 
         public static bool IsCompleted(this SessionStatus session)

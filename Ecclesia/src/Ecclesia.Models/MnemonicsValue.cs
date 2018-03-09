@@ -8,6 +8,6 @@ namespace Ecclesia.Models
 		public string Value { get; set; }
 
 		[JsonRequired]
-		public DataType Type { get; set; }
+		public DataType DataType { get; set; }
 	}
 }

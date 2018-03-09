@@ -9,7 +9,7 @@ namespace Ecclesia.Models
 	public class ComputationGraph
 	{
 		[JsonRequired]
-		public int[][] Dependecies { get; set; }
+		public int[][] Dependencies { get; set; }
 
 		[JsonRequired]
 		public List<Operation> Operations { get; set; }
