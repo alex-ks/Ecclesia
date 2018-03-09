@@ -14,14 +14,14 @@ namespace Ecclesia.Endpoint.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    public class SessionController : Controller
+    public class SessionsController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SessionManager _sessionManager;
 
         private Task<ApplicationUser> AppUser() => _userManager.GetUserAsync(HttpContext.User);
 
-        public SessionController(UserManager<ApplicationUser> userManager, SessionManager sessionManager)
+        public SessionsController(UserManager<ApplicationUser> userManager, SessionManager sessionManager)
         {
             _userManager = userManager;
             _sessionManager = sessionManager;
@@ -36,7 +36,7 @@ namespace Ecclesia.Endpoint.Controllers
             return Ok(new { SessionId = sessionId });
         }
 
-        [Route("{id: long}")]
+        [Route("{id}")]
         [HttpGet]
         public async Task<IActionResult> GetSessionStatusAsync(long id)
         {

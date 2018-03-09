@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -27,7 +26,7 @@ namespace Ecclesia.ExecutorClient
         {
             using (var client = new HttpClient())
             {
-                var response = await client.DeleteAsync($"http://{_hostname}/api/session/{sessionId}");
+                var response = await client.DeleteAsync($"{_hostname}/api/session/{sessionId}");
 
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
@@ -41,7 +40,7 @@ namespace Ecclesia.ExecutorClient
         {
             using (var client = new HttpClient())
             {
-                var response = await client.GetAsync($"http://{_hostname}/api/session/{sessionId}");
+                var response = await client.GetAsync($"{_hostname}/api/session/{sessionId}");
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 if (response.StatusCode == HttpStatusCode.OK)
@@ -59,8 +58,11 @@ namespace Ecclesia.ExecutorClient
         {
             using (var client = new HttpClient())
             {
-                var content = new StringContent(JsonConvert.SerializeObject(startRequest));
-                var response = await client.PostAsync($"http://{_hostname}/api/session", content);
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(startRequest), 
+                    Encoding.UTF8, 
+                    "application/json");
+                var response = await client.PostAsync($"{_hostname}/api/session", content);
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 if (response.StatusCode == HttpStatusCode.OK)
