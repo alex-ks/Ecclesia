@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Ecclesia.DataAccessLayer;
 using Ecclesia.DataAccessLayer.Models;
+using Ecclesia.ExecutorClient;
+using Ecclesia.MessageQueue;
+using Ecclesia.MessageQueue.RabbitMQ;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -35,10 +38,29 @@ namespace Ecclesia.Endpoint
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
             })
-                .AddEntityFrameworkStores<ApplicationContext>()
+                .AddEntityFrameworkStores<PsqlContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddTransient<ApplicationContext, PsqlContext>();
+
+
+            services.AddTransient<ApplicationContext, PsqlContext>(_ => 
+                new PsqlContext(Configuration.GetConnectionString("psql")));
+
+            var queueEntry = Configuration.GetSection("RabbitMQ");
+            var queueParams = new RmqMessageQueueParams
+            {
+                HostName = queueEntry["hostname"],
+                UserName = queueEntry["username"],
+                Password = queueEntry["password"]
+            };
+
+            services.AddSingleton(queueParams);
+            services.AddTransient(typeof(IMessageQueue<>), typeof(RmqMessageQueue<>));
+
+            var executorUrl = Configuration.GetSection("Executor")["url"];
+            services.AddTransient<IExecutor, ExecutorRestClient>(_ => new ExecutorRestClient(executorUrl));
+
+            services.AddTransient<SessionManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

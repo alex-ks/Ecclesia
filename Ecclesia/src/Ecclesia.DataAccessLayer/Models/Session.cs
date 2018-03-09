@@ -18,8 +18,8 @@ namespace Ecclesia.DataAccessLayer.Models
         public long UserId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime? LastPolling { get; set; }
-
         public SessionState State { get; set; }
+        public string ExecutionId { get; set; }
         
         public ComputationGraph OriginalGraph
         {

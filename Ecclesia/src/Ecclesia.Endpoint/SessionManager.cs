@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Ecclesia.DataAccessLayer.Models;
 using Ecclesia.Models;
+using Ecclesia.ExecutorClient;
 
 namespace Ecclesia.Endpoint
 {
@@ -22,6 +23,11 @@ namespace Ecclesia.Endpoint
         {
             using (var context = _services.GetService<ApplicationContext>())
             {
+                var executor = _services.GetService<IExecutor>();
+                var poller = _services.GetService<Poller>();
+
+                var executionId = executor.StartSession(startRequest);
+
                 var session = new Session
                 {
                     StartTime = DateTime.Now,
@@ -33,15 +39,15 @@ namespace Ecclesia.Endpoint
                             .Select(op => new OperationStatus { Id = op.Id, State = OperationState.Awaits })
                             .ToList(),
                     UserId = user.Id,
+                    ExecutionId = executionId,
                     State = SessionState.Running
                 };
 
                 await context.Sessions.AddAsync(session);
-
-                // TODO: call executor
-                // TODO: start polling
-
                 await context.SaveChangesAsync();
+
+                // TODO: start polling
+                poller.StartTracking(session.Id);
 
                 return session.Id;
             }

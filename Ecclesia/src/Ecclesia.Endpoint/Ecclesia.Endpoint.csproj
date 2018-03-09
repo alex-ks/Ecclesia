@@ -18,6 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ecclesia.DataAccessLayer\Ecclesia.DataAccessLayer.csproj" />
+    <ProjectReference Include="..\Ecclesia.ExecutorClient\Ecclesia.ExecutorClient.csproj" />
+    <ProjectReference Include="..\Ecclesia.MessageQueue\Ecclesia.MessageQueue.csproj" />
     <ProjectReference Include="..\Ecclesia.Models\Ecclesia.Models.csproj" />
   </ItemGroup>
 

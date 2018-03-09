@@ -8,7 +8,7 @@ using RabbitMQ.Client.Events;
 
 namespace Ecclesia.MessageQueue.RabbitMQ
 {
-    public struct RmqMessageQueueParams
+    public class RmqMessageQueueParams
     {
         public string HostName { get; set; }
         public string UserName { get; set; }
