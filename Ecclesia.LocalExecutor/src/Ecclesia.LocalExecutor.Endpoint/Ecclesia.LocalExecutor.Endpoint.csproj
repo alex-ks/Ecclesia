@@ -51,4 +51,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Ecclesia\src\Ecclesia.Models\Ecclesia.Models.csproj" />
+  </ItemGroup>
+
 </Project>

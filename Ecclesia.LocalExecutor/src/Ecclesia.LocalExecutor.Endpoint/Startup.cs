@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
-using Ecclesia.LocalExecutor.Endpoint.Models;
+using Ecclesia.Models;
 
 namespace Ecclesia.LocalExecutor.Endpoint
 {

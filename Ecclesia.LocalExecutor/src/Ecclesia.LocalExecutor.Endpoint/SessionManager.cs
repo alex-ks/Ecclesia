@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ecclesia.LocalExecutor.Endpoint.Models;
+using Ecclesia.Models;
 using Newtonsoft.Json;
 using System.IO;
 using Microsoft.Extensions.Logging;

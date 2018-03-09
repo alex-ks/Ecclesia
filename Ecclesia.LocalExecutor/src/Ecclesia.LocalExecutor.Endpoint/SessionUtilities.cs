@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ecclesia.LocalExecutor.Endpoint.Models;
+using Ecclesia.Models;
 
 
 namespace Ecclesia.LocalExecutor.Endpoint
