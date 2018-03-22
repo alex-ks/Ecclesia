@@ -1,0 +1,27 @@
+#codeSubmitLabel
+{
+    margin: 1em 0em;
+    font-weight: bold;
+}
+
+#codeForm
+{
+    vertical-align: center;
+    width: 100%;
+}
+
+#source
+{
+    height: 20em;
+    font-family: monospace
+}
+
+#submitStatus
+{
+    margin: 1em 0em;
+}
+
+#codeSubmitButton
+{
+    margin: 1em 0em;
+}
