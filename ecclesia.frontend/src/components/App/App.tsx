@@ -48,16 +48,22 @@ export class App extends React.Component<IAppProps, IAppState>
 
         return (
             <div className="container">
-                <Navigation />
+                <Navigation brand="Ecclesia" >
+                {[
+                    { to: "/", label: "Home" },
+                    { to: "/editor", label: "Workflow editor" },
+                    { to: "/sessions", label: "Session monitor" }
+                ]}
+                </Navigation>
                 <Switch>
                     <Route 
                         exact path="/"
                         component={EditorReady} />
                     <Route 
-                        path="/edit"
+                        path="/editor"
                         component={EditorReady} />
                     <Route 
-                        path="/view"
+                        path="/sessions"
                         component={Blank} />
                 </Switch>
             </div>

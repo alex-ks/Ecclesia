@@ -4,20 +4,24 @@ import * as Bootstrap from "reactstrap"
 import "./Navigation.css"
 
 
-enum SelectionMode
+interface ILink
 {
-    Home, Editor, View, None
+    to: string;
+    label: string;
 }
 
 interface INavigationProps 
 {
+    brand: string;
     vertical?: boolean;
     className?: string;
+    children: ILink[];
 }
 
 interface INavigationState 
 {
-    mode: SelectionMode;
+    selectionId: number;
+    isOpen: boolean;
 }
 
 export class Navigation extends React.Component<INavigationProps, INavigationState>
@@ -25,13 +29,13 @@ export class Navigation extends React.Component<INavigationProps, INavigationSta
     constructor(props: INavigationProps) 
     {
         super(props);
-        this.state = { mode: SelectionMode.None };
+        this.state = { selectionId: -1, isOpen: false };
     }
 
     // TODO: how make it right?
-    homeSelected = (e: any) => this.setState({ mode: SelectionMode.Home })
-    editorSelected = (e: any) => this.setState({ mode: SelectionMode.Editor })
-    viewSelected = (e: any) => this.setState({ mode: SelectionMode.View })
+    select = (id: number) => this.setState({ selectionId: id });
+
+    toggle = () => this.setState(prev => ({ isOpen: !prev.isOpen }));
 
     render() : React.ReactNode
     {
@@ -39,34 +43,28 @@ export class Navigation extends React.Component<INavigationProps, INavigationSta
         
         if (this.props.className)
             navClass = [navClass, this.props.className].join(" ");
+        
+        let items = this.props.children.map((child, index) => (
+            <Bootstrap.NavItem>
+                <Bootstrap.NavLink 
+                    href={`#${child.to}`}
+                    onClick={() => this.select(index)}
+                    active={this.state.selectionId == index}>
+                    {child.label}
+                </Bootstrap.NavLink>
+            </Bootstrap.NavItem>
+        ));
 
         return (
-            <Bootstrap.Nav className={navClass} pills vertical={this.props.vertical}>
-                <Bootstrap.NavItem>
-                    <Bootstrap.NavLink 
-                        href="#/"
-                        onClick={this.homeSelected}
-                        active={this.state.mode == SelectionMode.Home}>
-                        Home
-                    </Bootstrap.NavLink>
-                </Bootstrap.NavItem>
-                <Bootstrap.NavItem>
-                    <Bootstrap.NavLink 
-                        href="#/edit"
-                        onClick={this.editorSelected}
-                        active={this.state.mode == SelectionMode.Editor}>
-                        Edit workflow
-                    </Bootstrap.NavLink>
-                </Bootstrap.NavItem>
-                <Bootstrap.NavItem>
-                    <Bootstrap.NavLink 
-                        href="#/view"
-                        onClick={this.viewSelected}
-                        active={this.state.mode == SelectionMode.View}>
-                        View sessions
-                    </Bootstrap.NavLink>
-                </Bootstrap.NavItem>
-            </Bootstrap.Nav>
+            <Bootstrap.Navbar className={navClass} color="faded" light expand="md">
+                <Bootstrap.NavbarBrand href="/">{this.props.brand}</Bootstrap.NavbarBrand>
+                <Bootstrap.NavbarToggler onClick={this.toggle} />
+                <Bootstrap.Collapse isOpen={this.state.isOpen} navbar>
+                    <Bootstrap.Nav className="ml-auto" navbar>
+                        {items}
+                    </Bootstrap.Nav>
+                </Bootstrap.Collapse>
+            </Bootstrap.Navbar>
         );
     }
 }
