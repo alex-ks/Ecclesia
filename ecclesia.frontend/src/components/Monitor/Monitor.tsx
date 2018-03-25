@@ -1,4 +1,3 @@
-import * as Path from "path"
 import * as React from "react"
 import * as Bootstrap from "reactstrap"
 import { ISessionStatus, OperationState } from "src/models/SessionStatus"
@@ -35,7 +34,7 @@ export class Monitor extends React.Component<IMonitorProps, IMonitorState>
         return new Promise<ISessionStatus[]>((resolve, reject) =>
         {
             let requester = new XMLHttpRequest();
-            let url = Path.join(this.props.managementUrl, "/api/sessions");
+            let url = this.props.managementUrl + "/api/sessions";
 
             try
             {

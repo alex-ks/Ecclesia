@@ -1,6 +1,5 @@
 import * as React from "react"
 import * as Bootstrap from "reactstrap"
-import * as Path from "path"
 import { IComputationGraph } from "src/models/ComputationGraph"
 
 import "./Editor.css"
@@ -65,7 +64,7 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
         return new Promise<void>((resolve, reject) => 
         {
             let requester = new XMLHttpRequest();
-            let url = Path.join(this.props.managementUrl, "/api/sessions");
+            let url = this.props.managementUrl + "/api/sessions";
 
             requester.open('POST', url, false);
             requester.setRequestHeader("Content-Type", "application/json");
