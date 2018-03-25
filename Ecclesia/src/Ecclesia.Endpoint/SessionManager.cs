@@ -76,13 +76,14 @@ namespace Ecclesia.Endpoint
         {
             using (var context = _services.GetService<EcclesiaContext>())
             {
-                return from session in context.Sessions
-                       where session.UserId == applicationUser.Id
-                       select new SessionStatus
-                       {
-                           OperationStatus = session.OperationsStatus,
-                           MnemonicsTable = session.MnemonicsTable
-                       };
+                var query = from session in context.Sessions
+                            where session.UserId == applicationUser.Id
+                            select new SessionStatus
+                            {
+                                OperationStatus = session.OperationsStatus,
+                                MnemonicsTable = session.MnemonicsTable
+                            };
+                return query.ToList();
             }
         }
     }
