@@ -1,16 +1,13 @@
 import * as React from "react"
-import { NavLink, Switch, Route, Link } from "react-router-dom"
+import { Switch, Route } from "react-router-dom"
 import * as Bootstrap from "reactstrap"
 
+import Home from "src/components/Home";
 import Editor from "src/components/Editor"
 import Navigation from "src/components/Navigation"
 
 import "./App.css"
 
-enum AppMode
-{
-    Home, Editor, View
-}
 
 interface IAppProps
 {
@@ -18,17 +15,16 @@ interface IAppProps
     managementUrl: string;
 }
 
-interface IAppState 
-{
-    mode: AppMode;
-}
+interface IAppState { }
+
+const TestUser = "UserTest"
 
 export class App extends React.Component<IAppProps, IAppState>
 {
     constructor(props: IAppProps) 
     {
         super(props);
-        this.state = { mode: AppMode.Home };
+        this.state = { };
     }
 
     render() : React.ReactNode
@@ -37,7 +33,7 @@ export class App extends React.Component<IAppProps, IAppState>
             <Editor 
                 compilerUrl={this.props.compilerUrl} 
                 managementUrl={this.props.managementUrl}
-                user="UserTest" />
+                user={TestUser} />
         );
 
         let Blank = () => (
@@ -58,10 +54,15 @@ export class App extends React.Component<IAppProps, IAppState>
                 <Switch>
                     <Route 
                         exact path="/"
-                        component={EditorReady} />
+                        component={Home} />
                     <Route 
                         path="/editor"
-                        component={EditorReady} />
+                        render={props => 
+                            <Editor 
+                                compilerUrl={this.props.compilerUrl} 
+                                managementUrl={this.props.managementUrl}
+                                user={TestUser} />} 
+                            />
                     <Route 
                         path="/sessions"
                         component={Blank} />
