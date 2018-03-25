@@ -33,5 +33,3 @@ if __name__ == "__main__":
     
     with open(os.path.join(sys.argv[1],str(1)+"output.txt"), 'w') as f:
         f.write(str(result))
-    print(1)
-    

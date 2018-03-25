@@ -19,7 +19,7 @@ if __name__ == "__main__":
     values = [] 
     result = 0
     
-    nameFiles = os.listdir(sys.argv[1]) 
+    nameFiles = sorted(os.listdir(sys.argv[1]))
     nameFiles.remove("source.py") 
     for i in range(len(nameFiles)):
         with open(os.path.join(sys.argv[1],nameFiles[i]), 'r') as f:
@@ -42,8 +42,7 @@ if __name__ == "__main__":
         else:
             result = values[0] / values[1]
         
-        with open(os.path.join(sys.argv[1],str(i)+"output.txt"), 'w') as f:
+        with open(os.path.join(sys.argv[1], str(i)+"output.txt"), 'w') as f:
             f.write(str(result))
-        print(1)
     else:
-        print(0)
+        exit(-1)

@@ -7,7 +7,7 @@ if __name__ == "__main__":
     argFiles  = []
     nameFiles = []
     
-    nameFiles = os.listdir(sys.argv[1])
+    nameFiles = sorted(os.listdir(sys.argv[1]))
     nameFiles.remove("source.py") 
     for i in range(len(nameFiles)): 
         with open(sys.argv[1]+"\\"+nameFiles[i], 'r') as f:
@@ -18,4 +18,4 @@ if __name__ == "__main__":
     for i in range(len(result)):
         with open(sys.argv[1]+"\\"+str(i)+"output.txt", 'w') as f:
             f.write(str(result[i]))
-    print(1)
+            

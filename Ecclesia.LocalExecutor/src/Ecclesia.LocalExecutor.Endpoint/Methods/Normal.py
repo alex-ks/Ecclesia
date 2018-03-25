@@ -31,7 +31,6 @@ if __name__ == "__main__":
         statist,hi_2 = stats.normaltest(results)
         with open(os.path.join(sys.argv[1],str(1)+"output.txt"), 'w') as f:
             f.write(str(hi_2))
-        print(1)
     else:
-        print(0)
+        exit(-1)
     

@@ -37,8 +37,7 @@ if __name__ == "__main__":
         
         result = values[0] * values[1]
         
-        with open(os.path.join(sys.argv[1],str(i)+"output.txt"), 'w') as f:
+        with open(os.path.join(sys.argv[1], str(i)+"output.txt"), 'w') as f:
             f.write(str(result))
-        print(1)
     else:
-        print(0)
+        exit(-1)
