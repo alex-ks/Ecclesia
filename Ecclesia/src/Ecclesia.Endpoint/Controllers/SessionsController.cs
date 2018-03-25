@@ -1,5 +1,6 @@
 ﻿using Ecclesia.DataAccessLayer;
 using Ecclesia.DataAccessLayer.Models;
+using Ecclesia.Endpoint.Models;
 using Ecclesia.Identity.Models;
 using Ecclesia.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -51,7 +52,7 @@ namespace Ecclesia.Endpoint.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<SessionStatus>> GetSessionsAsync()
+        public async Task<IEnumerable<ResponseSessionStatus>> GetSessionsAsync()
         {
             return _sessionManager.GetSessions(await AppUser());
         }

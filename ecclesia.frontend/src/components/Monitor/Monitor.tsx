@@ -79,6 +79,7 @@ export class Monitor extends React.Component<IMonitorProps, IMonitorState>
     componentWillMount()
     {
         this.timerId = setInterval(this.updateSessions, PollTimeout);
+        this.updateSessions();
     }
 
     componentWillUnmount()

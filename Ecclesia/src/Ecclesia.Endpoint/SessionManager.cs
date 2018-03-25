@@ -8,6 +8,7 @@ using Ecclesia.DataAccessLayer.Models;
 using Ecclesia.Models;
 using Ecclesia.ExecutorClient;
 using Ecclesia.Identity.Models;
+using Ecclesia.Endpoint.Models;
 
 namespace Ecclesia.Endpoint
 {
@@ -72,16 +73,21 @@ namespace Ecclesia.Endpoint
             }
         }
 
-        internal IEnumerable<SessionStatus> GetSessions(ApplicationUser applicationUser)
+        internal IEnumerable<ResponseSessionStatus> GetSessions(ApplicationUser applicationUser)
         {
             using (var context = _services.GetService<EcclesiaContext>())
             {
                 var query = from session in context.Sessions
                             where session.UserId == applicationUser.Id
-                            let status = new SessionStatus
+                            let status = new ResponseSessionStatus
                             {
                                 SessionId = session.Id,
-                                OperationStatus = session.OperationsStatus,
+                                OperationStatus = session.OperationsStatus.Select(op => new ResponseOperationStatus
+                                {
+                                    Id = op.Id,
+                                    State = op.State,
+                                    Name = session.OriginalGraph.Operations[op.Id].Name
+                                }).ToList(),
                                 MnemonicsTable = session.MnemonicsTable,
                                 StartTime = session.StartTime
                             }

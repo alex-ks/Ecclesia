@@ -13,6 +13,7 @@ export enum OperationState
 export interface IOperationStatus
 {
     id: number;
+    name: string;
     state: OperationState;
 }
 

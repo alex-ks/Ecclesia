@@ -2,13 +2,10 @@ import * as React from "react"
 import * as Bootstrap from "reactstrap"
 
 import { ISessionStatus, SessionState, getState } from "src/models/SessionStatus"
+import Operations from "src/components/Operations"
 
 import "./Session.css"
 
-interface ISessionProps
-{
-    status: ISessionStatus;
-}
 
 function getBadge(state: SessionState)
 {
@@ -45,6 +42,11 @@ function serializeDate(date: Date)
     return date.toLocaleTimeString([], options);
 }
 
+interface ISessionProps
+{
+    status: ISessionStatus;
+}
+
 export class Session extends React.Component<ISessionProps>
 {
     render()
@@ -55,10 +57,11 @@ export class Session extends React.Component<ISessionProps>
                     Session #{this.props.status.sessionId} {getBadge(getState(this.props.status))}
                 </Bootstrap.DropdownToggle>
                 <Bootstrap.DropdownMenu>
-                    <div className="dropDown fullWidth">
+                    <div className="dropDown">
                         <div className="fullWidth">
                             Start time: {serializeDate(this.props.status.startTime as Date)}
                         </div>
+                        <Operations operations={this.props.status.operationStatus} />
                     </div>
                 </Bootstrap.DropdownMenu>
             </Bootstrap.UncontrolledDropdown>

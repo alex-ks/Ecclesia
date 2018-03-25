@@ -144,7 +144,7 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
                         <Bootstrap.Button 
                             id="codeSubmitButton"
                             onClick={this.handleSubmit}>
-                            Compile
+                            Submit
                         </Bootstrap.Button>
                     </Bootstrap.FormGroup>
                 </div>
