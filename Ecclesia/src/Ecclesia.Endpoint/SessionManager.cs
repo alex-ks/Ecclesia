@@ -78,11 +78,15 @@ namespace Ecclesia.Endpoint
             {
                 var query = from session in context.Sessions
                             where session.UserId == applicationUser.Id
-                            select new SessionStatus
+                            let status = new SessionStatus
                             {
+                                SessionId = session.Id,
                                 OperationStatus = session.OperationsStatus,
-                                MnemonicsTable = session.MnemonicsTable
-                            };
+                                MnemonicsTable = session.MnemonicsTable,
+                                StartTime = session.StartTime
+                            }
+                            orderby status.StartTime descending
+                            select status;
                 return query.ToList();
             }
         }
