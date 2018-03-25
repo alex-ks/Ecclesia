@@ -35,21 +35,8 @@ interface IOperationsProps
     operations: IOperationStatus[];
 }
 
-interface IOperationsState
+export class Operations extends React.Component<IOperationsProps>
 {
-    opened: boolean;
-}
-
-export class Operations extends React.Component<IOperationsProps, IOperationsState>
-{
-    constructor(props: IOperationsProps)
-    {
-        super(props);
-        this.state = { opened: false };
-    }
-
-    toggle = () => this.setState(prev => ({ opened: !prev.opened }))
-
     render()
     {
         let operations = this.props.operations.map((op, index) =>
@@ -63,9 +50,7 @@ export class Operations extends React.Component<IOperationsProps, IOperationsSta
         });
 
         return (
-            <Bootstrap.Dropdown 
-                isOpen={this.state.opened}
-                toggle={this.toggle}>
+            <Bootstrap.UncontrolledDropdown className="centerElement">
                 <Bootstrap.DropdownToggle color="light" className="fullWidth" caret >
                     Operations
                 </Bootstrap.DropdownToggle>
@@ -76,7 +61,7 @@ export class Operations extends React.Component<IOperationsProps, IOperationsSta
                         </Bootstrap.ListGroup>
                     </div>
                 </Bootstrap.DropdownMenu>
-            </Bootstrap.Dropdown>
+            </Bootstrap.UncontrolledDropdown>
         );
     }
 }

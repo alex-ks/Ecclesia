@@ -3,6 +3,7 @@ import * as Bootstrap from "reactstrap"
 
 import { ISessionStatus, SessionState, getState } from "src/models/SessionStatus"
 import Operations from "src/components/Operations"
+import Values from "src/components/Values"
 
 import "./Session.css"
 
@@ -62,6 +63,7 @@ export class Session extends React.Component<ISessionProps>
                             Start time: {serializeDate(this.props.status.startTime as Date)}
                         </div>
                         <Operations operations={this.props.status.operationStatus} />
+                        <Values values={this.props.status.mnemonicsTable} />
                     </div>
                 </Bootstrap.DropdownMenu>
             </Bootstrap.UncontrolledDropdown>
