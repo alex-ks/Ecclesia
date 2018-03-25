@@ -1,5 +1,6 @@
 import * as React from "react"
 import * as Bootstrap from "reactstrap"
+import * as Path from "path"
 import { IComputationGraph } from "src/models/ComputationGraph"
 
 import "./Editor.css"
@@ -50,10 +51,11 @@ export default class Editor extends React.Component<IEditorProps, IEditorState>
             requester.open('POST', this.props.compilerUrl, false);
             requester.setRequestHeader("Content-Type", "application/json");
             requester.send(JSON.stringify({ source: code }));
+
             if (requester.status == 200)
                 resolve(requester.responseText);
             else
-                reject(new Error(requester.responseText));
+                reject(new Error([requester.status, requester.responseText].join(": ")));
         });
     }
 
@@ -62,15 +64,17 @@ export default class Editor extends React.Component<IEditorProps, IEditorState>
         return new Promise<void>((resolve, reject) => 
         {
             let requester = new XMLHttpRequest();
-            requester.open('POST', this.props.managementUrl, false);
+            let url = Path.join(this.props.managementUrl, "/api/sessions");
+
+            requester.open('POST', url, false);
             requester.setRequestHeader("Content-Type", "application/json");
-            // add real authorization
+            // TODO: add real authorization
             requester.setRequestHeader("Authorization", "UserTest");
             requester.send(JSON.stringify({ computationGraph: graph }));
             if (requester.status == 200)
                 resolve();
             else
-                reject(new Error(requester.responseText));
+                reject(new Error([requester.status, requester.responseText].join(": ")));
         });
     }
 
