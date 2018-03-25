@@ -5,6 +5,7 @@ import * as Bootstrap from "reactstrap"
 import Home from "src/components/Home";
 import Editor from "src/components/Editor"
 import Navigation from "src/components/Navigation"
+import Monitor from "src/components/Monitor"
 
 import "./App.css"
 
@@ -62,10 +63,14 @@ export class App extends React.Component<IAppProps, IAppState>
                                 compilerUrl={this.props.compilerUrl} 
                                 managementUrl={this.props.managementUrl}
                                 user={TestUser} />} 
-                            />
+                        />
                     <Route 
                         path="/sessions"
-                        component={Blank} />
+                        render={props =>
+                            <Monitor
+                                user={TestUser}
+                                managementUrl={this.props.managementUrl} />} 
+                        />
                 </Switch>
             </div>
         );

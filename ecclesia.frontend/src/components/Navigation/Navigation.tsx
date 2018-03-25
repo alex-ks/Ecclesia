@@ -61,7 +61,7 @@ export class Navigation extends React.Component<INavigationProps, INavigationSta
 
         return (
             <Bootstrap.Navbar className={navClass} color="faded" light expand="md">
-                <Bootstrap.NavbarBrand href={window.location.host}>
+                <Bootstrap.NavbarBrand href="/">
                     {this.props.brand}
                 </Bootstrap.NavbarBrand>
                 <Bootstrap.NavbarToggler onClick={this.toggle} />
