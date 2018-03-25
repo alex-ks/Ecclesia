@@ -16,6 +16,7 @@ interface IEditorProps
 {
     compilerUrl: string;
     managementUrl: string;
+    user: string;
 }
 
 interface IEditorState
@@ -25,7 +26,7 @@ interface IEditorState
     codeStatusMessage: string;
 }
 
-export default class Editor extends React.Component<IEditorProps, IEditorState>
+export class Editor extends React.Component<IEditorProps, IEditorState>
 {
     constructor(props: IEditorProps)
     {
@@ -69,7 +70,7 @@ export default class Editor extends React.Component<IEditorProps, IEditorState>
             requester.open('POST', url, false);
             requester.setRequestHeader("Content-Type", "application/json");
             // TODO: add real authorization
-            requester.setRequestHeader("Authorization", "UserTest");
+            requester.setRequestHeader("Authorization", this.props.user);
             requester.send(JSON.stringify({ computationGraph: graph }));
             if (requester.status == 200)
                 resolve();
@@ -142,7 +143,8 @@ export default class Editor extends React.Component<IEditorProps, IEditorState>
                         </Bootstrap.Alert>
                         <Bootstrap.Button 
                             id="codeSubmitButton"
-                            onClick={this.handleSubmit}>
+                            onClick={this.handleSubmit}
+                            color="danger">
                             Compile
                         </Bootstrap.Button>
                     </Bootstrap.FormGroup>
