@@ -2,13 +2,15 @@
 
 Workflow management system
 
+You can check nightly builds of the system [here](http://ecclesia.ict.nsc.ru/#/).
+
 ## Ecclesia.LocalExecutor
 
 Simple [Executor API](https://app.swaggerhub.com/apis/alex-ks/ict-executor) implementation provided by ICT-Xored team of CompTech@NSK 2018 Winter school. Original sources can be found [here](https://github.com/alex-ks/comptech-nsk-ict). Thank you, brave souls!
 
 ## Filomena
 
-F# compiler wich produces computation graph description in terms of [Executor API](https://app.swaggerhub.com/apis/alex-ks/ict-executor). Allows program to be executed as parallel as it can be. You can play with the Filomena [here](http://ccfit.nsu.ru/~komissarov/Filomena/) - please report errors and strange behaviour to its [GitHub issue tracker](https://github.com/alex-ks/Filomena/issues).
+F# compiler wich produces computation graph description in terms of [Executor API](https://app.swaggerhub.com/apis/alex-ks/ict-executor). Allows program to be executed as parallel as it can be. You can play with the Filomena [here](http://ecclesia.ict.nsc.ru/filomena/) - please report errors and strange behaviour to its [GitHub issue tracker](https://github.com/alex-ks/Filomena/issues).
 
 Currently supported features:
 - Value bindings
