@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Ecclesia.Resolver.DataAccess
+namespace Ecclesia.Resolver.Orm
 {
     public class NpgsqlResolverContext : ResolverContext
     {

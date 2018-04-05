@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Ecclesia.Resolver.DataAccess\Ecclesia.Resolver.DataAccess.csproj" />
+    <ProjectReference Include="..\..\src\Ecclesia.Resolver.Orm\Ecclesia.Resolver.Orm.csproj" />
   </ItemGroup>
 
 </Project>

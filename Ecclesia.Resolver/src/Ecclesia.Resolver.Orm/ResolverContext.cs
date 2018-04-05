@@ -1,8 +1,8 @@
-using Ecclesia.Resolver.DataAccess.Configurations;
-using Ecclesia.Resolver.DataAccess.Models;
+using Ecclesia.Resolver.Orm.Configurations;
+using Ecclesia.Resolver.Orm.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ecclesia.Resolver.DataAccess
+namespace Ecclesia.Resolver.Orm
 {
     public abstract class ResolverContext : DbContext
     {

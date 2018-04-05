@@ -1,4 +1,4 @@
-namespace Ecclesia.Resolver.DataAccess.Models
+namespace Ecclesia.Resolver.Orm.Models
 {
     public class AtomContent
     {

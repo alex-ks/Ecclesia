@@ -12,6 +12,6 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ecclesia.Resolver.DataAccess\Ecclesia.Resolver.DataAccess.csproj" />
+    <ProjectReference Include="..\Ecclesia.Resolver.Orm\Ecclesia.Resolver.Orm.csproj" />
   </ItemGroup>
 </Project>

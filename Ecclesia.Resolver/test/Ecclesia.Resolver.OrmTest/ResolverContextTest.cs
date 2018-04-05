@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
 using System.Text;
-using Ecclesia.Resolver.DataAccess;
-using Ecclesia.Resolver.DataAccess.Models;
+using Ecclesia.Resolver.Orm;
+using Ecclesia.Resolver.Orm.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace Ecclesia.Resolver.DataAccessTest
+namespace Ecclesia.Resolver.OrmTest
 {
     public class ResolverContextTest
     {

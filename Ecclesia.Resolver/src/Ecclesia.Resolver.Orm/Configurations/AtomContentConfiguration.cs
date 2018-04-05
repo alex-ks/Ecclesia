@@ -1,8 +1,8 @@
-using Ecclesia.Resolver.DataAccess.Models;
+using Ecclesia.Resolver.Orm.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Ecclesia.Resolver.DataAccess.Configurations
+namespace Ecclesia.Resolver.Orm.Configurations
 {
     public class AtomContentConfiguration : IEntityTypeConfiguration<AtomContent>
     {

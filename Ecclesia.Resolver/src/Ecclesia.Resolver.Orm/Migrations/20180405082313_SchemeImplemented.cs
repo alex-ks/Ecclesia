@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Collections.Generic;
 
-namespace Ecclesia.Resolver.DataAccess.Migrations
+namespace Ecclesia.Resolver.Orm.Migrations
 {
     public partial class SchemeImplemented : Migration
     {

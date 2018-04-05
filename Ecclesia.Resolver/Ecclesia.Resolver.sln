@@ -7,11 +7,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4D0173D5-D69
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecclesia.Resolver.Endpoint", "src\Ecclesia.Resolver.Endpoint\Ecclesia.Resolver.Endpoint.csproj", "{0461B26C-1958-4D07-9CBE-B11193FAE455}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecclesia.Resolver.DataAccess", "src\Ecclesia.Resolver.DataAccess\Ecclesia.Resolver.DataAccess.csproj", "{D1E9C15B-1CC7-4E1B-A1E5-4D7F05C86C49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecclesia.Resolver.Orm", "src\Ecclesia.Resolver.Orm\Ecclesia.Resolver.Orm.csproj", "{D1E9C15B-1CC7-4E1B-A1E5-4D7F05C86C49}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{ABFAF6AB-32E2-49FE-869F-43C91C983ACA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecclesia.Resolver.DataAccessTest", "test\Ecclesia.Resolver.DataAccessTest\Ecclesia.Resolver.DataAccessTest.csproj", "{B72226C4-5340-4707-8CB0-A3AF4B56A0AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecclesia.Resolver.OrmTest", "test\Ecclesia.Resolver.OrmTest\Ecclesia.Resolver.OrmTest.csproj", "{B72226C4-5340-4707-8CB0-A3AF4B56A0AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
