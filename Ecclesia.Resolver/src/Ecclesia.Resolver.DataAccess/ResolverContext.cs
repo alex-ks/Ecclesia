@@ -6,7 +6,6 @@ namespace Ecclesia.Resolver.DataAccess
 {
     public abstract class ResolverContext : DbContext
     {
-        //public DbSet<Session> Sessions { get; set; }
         public DbSet<Atom> Atoms { get; set; }
         public DbSet<AtomContent> AtomContents { get; set; }
         public DbSet<AtomDependency> AtomDependencies { get; set; }

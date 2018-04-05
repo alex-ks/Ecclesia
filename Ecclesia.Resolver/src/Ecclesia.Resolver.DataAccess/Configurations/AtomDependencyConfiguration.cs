@@ -8,13 +8,13 @@ namespace Ecclesia.Resolver.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<AtomDependency> builder)
         {
-            builder.HasKey(ac => new { ac.AtomId, ac.DependentId });
-            builder.HasOne(ad => ad.Atom)
+            builder.HasKey(ac => new { ac.DependentId, ac.DependencyId });
+            builder.HasOne(ad => ad.Dependent)
                    .WithMany(atom => atom.Dependencies)
-                   .HasForeignKey(ad => ad.AtomId);
+                   .HasForeignKey(ad => ad.DependentId);
             builder.HasOne(ad => ad.Dependency)
                    .WithMany(ad => ad.Dependent)
-                   .HasForeignKey(ad => ad.DependentId);
+                   .HasForeignKey(ad => ad.DependencyId);
         }
     }
 }
