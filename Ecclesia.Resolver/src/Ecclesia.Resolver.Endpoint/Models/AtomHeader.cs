@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Ecclesia.Resolver.Storage.Models;
 
 namespace Ecclesia.Resolver.Endpoint.Models
 {

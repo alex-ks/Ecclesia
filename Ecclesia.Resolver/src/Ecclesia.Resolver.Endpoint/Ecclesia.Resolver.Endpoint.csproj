@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ecclesia.Resolver.Orm\Ecclesia.Resolver.Orm.csproj" />
+    <ProjectReference Include="..\Ecclesia.Resolver.Storage\Ecclesia.Resolver.Storage.csproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Ecclesia.Resolver.Endpoint.Models;
+using Ecclesia.Resolver.Storage.Models;
 
 namespace Ecclesia.Resolver.Endpoint
 {

@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{ABFAF6AB-3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecclesia.Resolver.OrmTest", "test\Ecclesia.Resolver.OrmTest\Ecclesia.Resolver.OrmTest.csproj", "{B72226C4-5340-4707-8CB0-A3AF4B56A0AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecclesia.Resolver.Storage", "src\Ecclesia.Resolver.Storage\Ecclesia.Resolver.Storage.csproj", "{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,10 +64,23 @@ Global
 		{B72226C4-5340-4707-8CB0-A3AF4B56A0AD}.Release|x64.Build.0 = Release|x64
 		{B72226C4-5340-4707-8CB0-A3AF4B56A0AD}.Release|x86.ActiveCfg = Release|x86
 		{B72226C4-5340-4707-8CB0-A3AF4B56A0AD}.Release|x86.Build.0 = Release|x86
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Debug|x64.ActiveCfg = Debug|x64
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Debug|x64.Build.0 = Debug|x64
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Debug|x86.ActiveCfg = Debug|x86
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Debug|x86.Build.0 = Debug|x86
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Release|x64.ActiveCfg = Release|x64
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Release|x64.Build.0 = Release|x64
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Release|x86.ActiveCfg = Release|x86
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0461B26C-1958-4D07-9CBE-B11193FAE455} = {4D0173D5-D697-40DE-A5B3-F1F874A5511F}
 		{D1E9C15B-1CC7-4E1B-A1E5-4D7F05C86C49} = {4D0173D5-D697-40DE-A5B3-F1F874A5511F}
 		{B72226C4-5340-4707-8CB0-A3AF4B56A0AD} = {ABFAF6AB-32E2-49FE-869F-43C91C983ACA}
+		{6D1A1970-E0A5-4CE8-BAAA-648F3F0AA381} = {4D0173D5-D697-40DE-A5B3-F1F874A5511F}
 	EndGlobalSection
 EndGlobal
