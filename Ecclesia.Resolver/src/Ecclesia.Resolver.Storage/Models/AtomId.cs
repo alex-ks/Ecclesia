@@ -4,6 +4,8 @@ namespace Ecclesia.Resolver.Storage.Models
 {
     public class AtomId
     {
+        public const string DefaultVersion = VersionUtils.DefaultVersion;
+
         private int _majorVersion = 1;
         private int? _middleVersion = 0;
         private int? _minorVersion = 0;
