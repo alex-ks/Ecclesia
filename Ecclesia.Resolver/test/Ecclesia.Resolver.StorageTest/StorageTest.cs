@@ -25,6 +25,7 @@ namespace Ecclesia.Resolver.StorageTest
         [Fact]
         public async Task AtomCreation_CreateAtomNoDeps_AtomWithNoDepsCreated()
         {
+            // Given
             var context = InitContext();
 
             var contentString = "Hello, world!";
@@ -37,11 +38,13 @@ namespace Ecclesia.Resolver.StorageTest
                 Version = "1.0.1"
             };
 
+            // When
             using (var storage = new AtomStorage(context))
             {
                 await storage.AddAsync(atomId, Enumerable.Empty<AtomId>(), content);
             }
 
+            // Then
             using (context = new InMemoryResolverContext())
             {
                 var dbAtom = context.Atoms.Include(a => a.Content)
@@ -61,6 +64,7 @@ namespace Ecclesia.Resolver.StorageTest
         [Fact]
         public async Task AtomCreation_CreateAtomWithDeps_AtomWithDepsCreated()
         {
+            // Given
             var context = InitContext();
 
             var contentString = "Hello, world!";
@@ -95,6 +99,7 @@ namespace Ecclesia.Resolver.StorageTest
             context.Atoms.Add(dbAtomDep);
             context.SaveChanges();
 
+            // When
             using (var storage = new AtomStorage(context))
             {
                 await storage.AddAsync(dependent, 
@@ -102,6 +107,7 @@ namespace Ecclesia.Resolver.StorageTest
                                        content);
             }
 
+            // Then
             using (context = new InMemoryResolverContext())
             {
                 var dbAtom = context.Atoms.Include(a => a.Content)
@@ -123,6 +129,7 @@ namespace Ecclesia.Resolver.StorageTest
         [Fact]
         public void AtomAсquisition_GetContent_ContentGot()
         {
+            // Given
             var context = InitContext();
 
             var contentString = "Hello, world!";
@@ -150,9 +157,11 @@ namespace Ecclesia.Resolver.StorageTest
             context.Atoms.Add(dbAtom);
             context.SaveChanges();
 
+            // When
             using (var storage = new AtomStorage(context))
             {
                 var str = Encoding.UTF8.GetString(storage.GetContent(atomId));
+            // Then
                 Assert.Equal(contentString, str);
             }
         }
@@ -160,6 +169,7 @@ namespace Ecclesia.Resolver.StorageTest
         [Fact]
         public void AtomAсquisition_GetDependencies_DependenciesGot()
         {
+            // Given
             var context = InitContext();
 
             var contentString = "Hello, world!";
@@ -215,6 +225,7 @@ namespace Ecclesia.Resolver.StorageTest
             context.Atoms.Add(dbAtom);
             context.SaveChanges();
 
+            // When
             using (var storage = new AtomStorage(context))
             {
                 var deps = storage.GetDependencies(dependent);
@@ -222,6 +233,7 @@ namespace Ecclesia.Resolver.StorageTest
 
                 var dep = deps.Single();
 
+            // Then
                 Assert.Equal(dependency.Kind, dep.Kind);
                 Assert.Equal(dependency.Name, dep.Name);
                 Assert.Equal(dependency.Version, dep.Version);

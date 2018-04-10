@@ -20,7 +20,7 @@ namespace Ecclesia.Resolver.Storage.Models
             set 
             {
                 if (!VersionUtils.TryParse(value, out _majorVersion, out _middleVersion, out _minorVersion, out _name))
-                    throw new ArgumentException("Invalid version format");
+                    throw new FormatException();
                 _version = value;
             }
         }
