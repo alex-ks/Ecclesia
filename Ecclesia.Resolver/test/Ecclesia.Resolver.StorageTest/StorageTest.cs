@@ -127,7 +127,7 @@ namespace Ecclesia.Resolver.StorageTest
         }
 
         [Fact]
-        public void AtomAсquisition_GetContent_ContentGot()
+        public async Task AtomAсquisition_GetContent_ContentGot()
         {
             // Given
             var context = InitContext();
@@ -160,14 +160,14 @@ namespace Ecclesia.Resolver.StorageTest
             // When
             using (var storage = new AtomStorage(context))
             {
-                var str = Encoding.UTF8.GetString(storage.GetContent(atomId));
+                var str = Encoding.UTF8.GetString(await storage.GetContentAsync(atomId));
             // Then
                 Assert.Equal(contentString, str);
             }
         }
 
         [Fact]
-        public void AtomAсquisition_GetDependencies_DependenciesGot()
+        public async Task AtomAсquisition_GetDependencies_DependenciesGot()
         {
             // Given
             var context = InitContext();
@@ -228,7 +228,7 @@ namespace Ecclesia.Resolver.StorageTest
             // When
             using (var storage = new AtomStorage(context))
             {
-                var deps = storage.GetDependencies(dependent);
+                var deps = await storage.GetDependenciesAsync(dependent);
                 Assert.Single(deps);
 
                 var dep = deps.Single();
@@ -237,6 +237,166 @@ namespace Ecclesia.Resolver.StorageTest
                 Assert.Equal(dependency.Kind, dep.Kind);
                 Assert.Equal(dependency.Name, dep.Name);
                 Assert.Equal(dependency.Version, dep.Version);
+            }
+        }
+
+        [Fact]
+        public async Task VersionWildcard_CreateAtomWithoutPredcessors_CreatedAtomWithDefaultVersion()
+        {
+            // Given
+            var context = InitContext();
+
+            var contentString = "Hello, world!";
+            var content = Encoding.UTF8.GetBytes(contentString);
+
+            var atomId = new AtomId
+            {
+                Kind = "PlainText",
+                Name = "Hello"
+            };
+
+            // When
+            using (var storage = new AtomStorage(context))
+            {
+                await storage.AddAsync(atomId, Enumerable.Empty<AtomId>(), content);
+            }
+
+            // Then
+            using (context = new InMemoryResolverContext())
+            {
+                var dbAtom = context.Atoms.Single(a => a.Kind == atomId.Kind 
+                                                       && a.Name == atomId.Name);
+
+                Assert.Equal(AtomId.DefaultVersion, dbAtom.Version);
+            }
+        }
+
+        [Theory]
+        [InlineData("1.0.4-name", "1.0.5")]
+        [InlineData("2-name", "2.0.1")]
+        [InlineData("3.1", "3.1.1")]
+        public async Task VersionWildcard_CreateAtomWithPredcessor_CreatedAtomWithMinorIncremented(
+            string predcessorVersion, 
+            string expectedVersion)
+        {
+            // Given
+            var context = InitContext();
+
+            var contentString = "Hello, world!";
+            var content = Encoding.UTF8.GetBytes(contentString);
+
+            var atomId = new AtomId
+            {
+                Kind = "PlainText",
+                Name = "Hello"
+            };
+
+            var dbAtom = new Atom
+            {
+                Kind = atomId.Kind,
+                Name = atomId.Name,
+                Version = predcessorVersion
+            };
+
+            context.Atoms.Add(dbAtom);
+            context.SaveChanges();
+
+            // When
+            using (var storage = new AtomStorage(context))
+            {
+                await storage.AddAsync(atomId, Enumerable.Empty<AtomId>(), content);
+            }
+
+            // Then
+            using (context = new InMemoryResolverContext())
+            {
+                var addedAtom = context.Atoms.Single(a => a.Kind == atomId.Kind 
+                                                          && a.Name == atomId.Name
+                                                          && a.Version != predcessorVersion);
+                    
+                Assert.Equal(expectedVersion, addedAtom.Version);
+            }
+        }
+
+        [Theory]
+        [InlineData("1.0.0", "1.0.1")]
+        [InlineData("1.0.1", "1.1.0")]
+        [InlineData("1.1.1", "2.0.0")]
+        public async Task VersionWildcard_CreateAtomWithWildcardInDeps_AtomWithLastDepsCreated(
+            string oldDependencyVersion,
+            string lastDependencyVersion)
+        {
+            // Given
+            var context = InitContext();
+
+            var contentString = "Hello, world!";
+            var content = Encoding.UTF8.GetBytes(contentString);
+
+            var dependency = new AtomId
+            {
+                Kind = "PlainText",
+                Name = "Hello",
+            };
+
+            var dependent = new AtomId
+            {
+                Kind = "Sentence",
+                Name = "World",
+                Version = "1.0.0"
+            };
+
+            var dbAtomOldDep = new Atom
+            {
+                Kind = dependency.Kind,
+                Name = dependency.Name,
+                Version = oldDependencyVersion
+            };
+            dbAtomOldDep.Content = new AtomContent
+            {
+                Atom = dbAtomOldDep,
+                Content = content
+            };
+
+            var dbAtomLastDep = new Atom
+            {
+                Kind = dependency.Kind,
+                Name = dependency.Name,
+                Version = lastDependencyVersion
+            };
+            dbAtomLastDep.Content = new AtomContent
+            {
+                Atom = dbAtomLastDep,
+                Content = content
+            };
+
+            context.Atoms.Add(dbAtomOldDep);
+            context.Atoms.Add(dbAtomLastDep);
+            context.SaveChanges();
+
+            // When
+            using (var storage = new AtomStorage(context))
+            {
+                await storage.AddAsync(dependent, 
+                                       Enumerable.Empty<AtomId>().Append(dependency),
+                                       content);
+            }
+
+            // Then
+            using (context = new InMemoryResolverContext())
+            {
+                var dbAtom = context.Atoms.Include(a => a.Content)
+                                          .Include(a => a.Dependencies)
+                                          .ThenInclude(dep => dep.Dependency)
+                                          .Single(a => a.Kind == dependent.Kind 
+                                                       && a.Name == dependent.Name 
+                                                       && a.Version == dependent.Version);
+
+                Assert.Single(dbAtom.Dependencies);
+                
+                var dependencyAtom = dbAtom.Dependencies.Single().Dependency;
+                Assert.Equal(dbAtomLastDep.Kind, dependencyAtom.Kind);
+                Assert.Equal(dbAtomLastDep.Name, dependencyAtom.Name);
+                Assert.Equal(dbAtomLastDep.Version, dependencyAtom.Version);
             }
         }
     }

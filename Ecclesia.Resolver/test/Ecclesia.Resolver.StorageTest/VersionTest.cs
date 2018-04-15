@@ -6,16 +6,8 @@ namespace Ecclesia.Resolver.StorageTest
 {
     public class VersionTest
     {
-        [Fact]
-        public void AtomVersion_SetNoVersion_GotDefaultVersion()
-        {
-        //When
-            var atomId = new AtomId { Kind = "Text", Name = "Hello" };
-        //Then
-            Assert.Equal(AtomId.DefaultVersion, atomId.Version);
-        }
-
         [Theory]
+        [InlineData(null)]
         [InlineData("1")]
         [InlineData("1.0")]
         [InlineData("1.0.52")]
@@ -57,6 +49,7 @@ namespace Ecclesia.Resolver.StorageTest
         [InlineData("2.1", 2, 1, 0)]
         [InlineData("1.2.3", 1, 2, 3)]
         [InlineData("2.0.4-beta", 2, 0, 4)]
+        [InlineData(null, int.MaxValue, int.MaxValue, int.MaxValue)]
         public void SortingAtoms_SetVersion_GotVersionNumbersAsTuple(string version, 
                                                                      int major,
                                                                      int middle,
@@ -65,7 +58,7 @@ namespace Ecclesia.Resolver.StorageTest
         // Given
             var atomId = new AtomId { Kind = "Text", Name = "Hello", Version = version };
         // When
-            var (a, b, c) = atomId.SortCriteria();
+            var (a, b, c) = atomId.SortCriteria().AsTuple();
         // Then
             Assert.Equal(major, a);
             Assert.Equal(middle, b);
