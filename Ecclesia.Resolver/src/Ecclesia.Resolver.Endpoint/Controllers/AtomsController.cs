@@ -44,6 +44,7 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
                     Name = name,
                     Version = version
                 };
+                atomId.Version = await _storage.FetchVersionAsync(atomId);
                 
                 var content = await _storage.GetContentAsync(atomId);
                 
@@ -51,7 +52,7 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
                 { 
                     Kind = kind, 
                     Name = name,
-                    Version = version,
+                    Version = atomId.Version,
                     Content = Convert.ToBase64String(content)
                 });
             }
@@ -65,8 +66,8 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
             }
         }
 
-        [HttpHead("{kind}/{name}")]
-        public async Task<IActionResult> Head(string kind, string name, [FromQuery] string version)
+        [HttpGet("{kind}/{name}/info")]
+        public async Task<IActionResult> GetInfo(string kind, string name, [FromQuery] string version)
         {
             try
             {
@@ -78,7 +79,7 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
                 };
                 atomId.Version = await _storage.FetchVersionAsync(atomId);
                 var dependencies = await _storage.GetDependenciesAsync(atomId);
-                return Ok(new AtomHeader 
+                return Ok(new AtomInfo 
                 { 
                     Kind = kind, 
                     Name = name, 
@@ -99,6 +100,9 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]AtomCreationRequest request)
         {
+            if (request == null)
+                return BadRequest("Invalid atom creation request format");
+
             try
             {
                 var atomId = new AtomId
@@ -107,8 +111,10 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
                     Name = request.Name,
                     Version = request.Version
                 };
-                await _storage.AddAsync(atomId, request.Dependencies, Convert.FromBase64String(request.Content));
-                return Ok(atomId);
+                var realId = await _storage.AddAsync(atomId, 
+                                                     request.Dependencies, 
+                                                     Convert.FromBase64String(request.Content ?? string.Empty));
+                return Ok(realId);
             }
             catch (ArgumentException e)
             {

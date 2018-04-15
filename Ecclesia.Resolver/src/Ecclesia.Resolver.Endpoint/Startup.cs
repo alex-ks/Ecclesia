@@ -27,7 +27,10 @@ namespace Ecclesia.Resolver.Endpoint
         {
             services.AddMvc();
 
-            services.AddTransient<ResolverContext, NpgsqlResolverContext>();
+            var connectionString = Configuration.GetConnectionString("psql");
+            services.AddTransient<ResolverContext, NpgsqlResolverContext>(_ => 
+                new NpgsqlResolverContext(connectionString));
+            
             services.AddScoped<AtomStorage>();
         }
 

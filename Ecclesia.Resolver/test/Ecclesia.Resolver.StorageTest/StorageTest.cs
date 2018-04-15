@@ -399,5 +399,45 @@ namespace Ecclesia.Resolver.StorageTest
                 Assert.Equal(dbAtomLastDep.Version, dependencyAtom.Version);
             }
         }
+
+        [Fact]
+        public async Task VersionWildcard_GetContent_LastContentGot()
+        {
+            // Given
+            var context = InitContext();
+
+            var contentString = "Hello, world!";
+            var content = Encoding.UTF8.GetBytes(contentString);
+            
+            var atomId = new AtomId
+            {
+                Kind = "PlainText",
+                Name = "Hello",
+            };
+            string version = "1.0.1";
+
+            var dbAtom = new Atom
+            {
+                Kind = atomId.Kind,
+                Name = atomId.Name,
+                Version = version
+            };
+            dbAtom.Content = new AtomContent
+            {
+                Atom = dbAtom,
+                Content = content
+            };
+
+            context.Atoms.Add(dbAtom);
+            context.SaveChanges();
+
+            // When
+            using (var storage = new AtomStorage(context))
+            {
+                var str = Encoding.UTF8.GetString(await storage.GetContentAsync(atomId));
+            // Then
+                Assert.Equal(contentString, str);
+            }
+        }
     }
 }

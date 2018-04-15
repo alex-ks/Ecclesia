@@ -100,7 +100,7 @@ namespace Ecclesia.Resolver.Storage
                     .Include(a => a.Content)
                     .SingleAsync(a => a.Kind == atomId.Kind 
                                     && a.Name == atomId.Name 
-                                    && atomId.Version == version);
+                                    && a.Version == version);
                 return atom.Content.Content;
             } 
             catch (InvalidOperationException)
@@ -115,7 +115,7 @@ namespace Ecclesia.Resolver.Storage
         /// If no version specified and atom does not exist, creates atom with default version "1.0.0"
         /// If no version specified and atom does exist, or there is an atom with specified version,
         /// creates new version with the same major and middle versions and incremented minor version
-        public async Task AddAsync(AtomId atomId, IEnumerable<AtomId> dependencies, byte[] content)
+        public async Task<AtomId> AddAsync(AtomId atomId, IEnumerable<AtomId> dependencies, byte[] content)
         {
             if (await ExistsExactAsync(atomId))
             {
@@ -171,6 +171,8 @@ namespace Ecclesia.Resolver.Storage
             await _context.AtomContents.AddAsync(dbContent);
 
             await _context.SaveChangesAsync();
+
+            return new AtomId { Kind = atomId.Kind, Name = atomId.Name, Version = version };
         }
 
         public void Dispose()

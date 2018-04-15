@@ -3,7 +3,7 @@ using Ecclesia.Resolver.Storage.Models;
 
 namespace Ecclesia.Resolver.Endpoint.Models
 {
-    public class AtomHeader
+    public class AtomInfo
     {
         public string Kind { get; set; }
         public string Name { get; set; }
