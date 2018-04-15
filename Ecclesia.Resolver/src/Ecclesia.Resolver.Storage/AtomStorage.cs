@@ -13,6 +13,8 @@ namespace Ecclesia.Resolver.Storage
     {
         private const string AtomAlreadyExists = 
             "Atom with kind = {0}, name = {1} and version = {2} already exists";
+        private const string AtomDoesNotExist = 
+            "Atom with kind = {0}, name = {1} and version = {2} does not exist";
 
         private ResolverContext _context;
 
@@ -25,15 +27,18 @@ namespace Ecclesia.Resolver.Storage
             return all.FirstOrDefaultAsync();
         }
 
-        private async Task<string> FetchVersionAsync(AtomId atomId)
+        public async Task<string> FetchVersionAsync(AtomId atomId)
         {
             var version = atomId.Version ?? await LastVersionAsync(atomId.Kind, atomId.Name);
             if (version == null)
-                throw new ArgumentException("Atom does not exist");
+                throw new ArgumentException(string.Format(AtomDoesNotExist, 
+                                                          atomId.Kind, 
+                                                          atomId.Name, 
+                                                          "lastest"));
             return version;
         }
 
-        private async Task<IEnumerable<AtomId>> FetchVersionsAsync(IEnumerable<AtomId> atoms)
+        public async Task<IEnumerable<AtomId>> FetchVersionsAsync(IEnumerable<AtomId> atoms)
         {
             var versions = await Task.WhenAll(atoms.Select(async atomId => await FetchVersionAsync(atomId)));
             return Enumerable.Zip(atoms, 
@@ -58,33 +63,53 @@ namespace Ecclesia.Resolver.Storage
         {
             var version = await FetchVersionAsync(atomId);
 
-            var atom = 
-                await _context.Atoms
-                    .Include(a => a.Dependencies)
-                    .ThenInclude(d => d.Dependency)
-                    .SingleAsync(a => a.Kind == atomId.Kind && a.Name == atomId.Name && a.Version == version);
+            try
+            {
+                var atom = 
+                    await _context.Atoms
+                        .Include(a => a.Dependencies)
+                        .ThenInclude(d => d.Dependency)
+                        .SingleAsync(a => a.Kind == atomId.Kind && a.Name == atomId.Name && a.Version == version);
 
-            var deps = from dep in atom.Dependencies
-                       select new AtomId
-                       {
-                           Kind = dep.Dependency.Kind,
-                           Name = dep.Dependency.Name,
-                           Version = dep.Dependency.Version
-                       };
+                var deps = from dep in atom.Dependencies
+                        select new AtomId
+                        {
+                            Kind = dep.Dependency.Kind,
+                            Name = dep.Dependency.Name,
+                            Version = dep.Dependency.Version
+                        };
 
-            return deps.ToList();
+                return deps.ToList();
+            }
+            catch (InvalidOperationException)
+            {
+                throw new ArgumentException(string.Format(AtomDoesNotExist, 
+                                                          atomId.Kind, 
+                                                          atomId.Name, 
+                                                          atomId.Version));
+            }
         }
 
         public async Task<byte[]> GetContentAsync(AtomId atomId)
         {
             var version = await FetchVersionAsync(atomId);
 
-            var atom = await _context.Atoms
-                .Include(a => a.Content)
-                .SingleAsync(a => a.Kind == atomId.Kind 
-                                  && a.Name == atomId.Name 
-                                  && atomId.Version == version);
-            return atom.Content.Content;
+            try
+            {
+                var atom = await _context.Atoms
+                    .Include(a => a.Content)
+                    .SingleAsync(a => a.Kind == atomId.Kind 
+                                    && a.Name == atomId.Name 
+                                    && atomId.Version == version);
+                return atom.Content.Content;
+            } 
+            catch (InvalidOperationException)
+            {
+                throw new ArgumentException(string.Format(AtomDoesNotExist, 
+                                                          atomId.Kind, 
+                                                          atomId.Name, 
+                                                          atomId.Version));
+            }
         }
 
         /// If no version specified and atom does not exist, creates atom with default version "1.0.0"
