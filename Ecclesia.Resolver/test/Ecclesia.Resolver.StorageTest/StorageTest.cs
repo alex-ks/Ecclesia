@@ -31,12 +31,7 @@ namespace Ecclesia.Resolver.StorageTest
             var contentString = "Hello, world!";
             var content = Encoding.UTF8.GetBytes(contentString);
 
-            var atomId = new AtomId
-            {
-                Kind = "PlainText",
-                Name = "Hello",
-                Version = "1.0.1"
-            };
+            var atomId = new AtomId("PlainText", "Hello", "1.0.1");
 
             // When
             using (var storage = new AtomStorage(context))
@@ -70,19 +65,8 @@ namespace Ecclesia.Resolver.StorageTest
             var contentString = "Hello, world!";
             var content = Encoding.UTF8.GetBytes(contentString);
 
-            var dependency = new AtomId
-            {
-                Kind = "PlainText",
-                Name = "Hello",
-                Version = "1.0.1"
-            };
-
-            var dependent = new AtomId
-            {
-                Kind = "Sentence",
-                Name = "World",
-                Version = "1.0.0"
-            };
+            var dependency = new AtomId("PlainText", "Hello", "1.0.1");
+            var dependent = new AtomId("Sentence", "World", "1.0.0");
 
             var dbAtomDep = new Atom
             {
@@ -135,12 +119,7 @@ namespace Ecclesia.Resolver.StorageTest
             var contentString = "Hello, world!";
             var content = Encoding.UTF8.GetBytes(contentString);
             
-            var atomId = new AtomId
-            {
-                Kind = "PlainText",
-                Name = "Hello",
-                Version = "1.0.1"
-            };
+            var atomId = new AtomId("PlainText", "Hello", "1.0.1");
 
             var dbAtom = new Atom
             {
@@ -175,19 +154,8 @@ namespace Ecclesia.Resolver.StorageTest
             var contentString = "Hello, world!";
             var content = Encoding.UTF8.GetBytes(contentString);
 
-            var dependency = new AtomId
-            {
-                Kind = "PlainText",
-                Name = "Hello",
-                Version = "1.0.1"
-            };
-
-            var dependent = new AtomId
-            {
-                Kind = "Sentence",
-                Name = "World",
-                Version = "1.0.0"
-            };
+            var dependency = new AtomId("PlainText", "Hello", "1.0.1");
+            var dependent = new AtomId("Sentence", "World", "1.0.0");
 
             var dbAtomDep = new Atom
             {
@@ -249,11 +217,7 @@ namespace Ecclesia.Resolver.StorageTest
             var contentString = "Hello, world!";
             var content = Encoding.UTF8.GetBytes(contentString);
 
-            var atomId = new AtomId
-            {
-                Kind = "PlainText",
-                Name = "Hello"
-            };
+            var atomId = new AtomId("PlainText", "Hello");
 
             // When
             using (var storage = new AtomStorage(context))
@@ -285,11 +249,7 @@ namespace Ecclesia.Resolver.StorageTest
             var contentString = "Hello, world!";
             var content = Encoding.UTF8.GetBytes(contentString);
 
-            var atomId = new AtomId
-            {
-                Kind = "PlainText",
-                Name = "Hello"
-            };
+            var atomId = new AtomId("PlainText", "Hello");
 
             var dbAtom = new Atom
             {
@@ -332,18 +292,8 @@ namespace Ecclesia.Resolver.StorageTest
             var contentString = "Hello, world!";
             var content = Encoding.UTF8.GetBytes(contentString);
 
-            var dependency = new AtomId
-            {
-                Kind = "PlainText",
-                Name = "Hello",
-            };
-
-            var dependent = new AtomId
-            {
-                Kind = "Sentence",
-                Name = "World",
-                Version = "1.0.0"
-            };
+            var dependency = new AtomId("PlainText", "Hello");
+            var dependent = new AtomId("Sentence", "World", "1.0.0");
 
             var dbAtomOldDep = new Atom
             {
@@ -409,11 +359,7 @@ namespace Ecclesia.Resolver.StorageTest
             var contentString = "Hello, world!";
             var content = Encoding.UTF8.GetBytes(contentString);
             
-            var atomId = new AtomId
-            {
-                Kind = "PlainText",
-                Name = "Hello",
-            };
+            var atomId = new AtomId("PlainText", "Hello");
             string version = "1.0.1";
 
             var dbAtom = new Atom

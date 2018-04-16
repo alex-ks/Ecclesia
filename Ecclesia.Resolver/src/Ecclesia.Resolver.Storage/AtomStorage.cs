@@ -22,12 +22,12 @@ namespace Ecclesia.Resolver.Storage
         {
             var all = from atom in _context.Atoms
                       where atom.Kind == kind && atom.Name == name
-                      orderby new AtomId { Kind = kind, Name = name, Version = atom.Version }.SortCriteria().AsTuple() descending
+                      orderby new AtomId(kind, name, atom.Version) descending
                       select atom.Version;
             return all.FirstOrDefaultAsync();
         }
 
-        public async Task<string> FetchVersionAsync(AtomId atomId)
+        public async Task<AtomId> FetchVersionAsync(AtomId atomId)
         {
             var version = atomId.Version ?? await LastVersionAsync(atomId.Kind, atomId.Name);
             if (version == null)
@@ -35,16 +35,11 @@ namespace Ecclesia.Resolver.Storage
                                                           atomId.Kind, 
                                                           atomId.Name, 
                                                           "lastest"));
-            return version;
+            return new AtomId(atomId.Kind, atomId.Name, version);
         }
 
-        public async Task<IEnumerable<AtomId>> FetchVersionsAsync(IEnumerable<AtomId> atoms)
-        {
-            var versions = await Task.WhenAll(atoms.Select(async atomId => await FetchVersionAsync(atomId)));
-            return Enumerable.Zip(atoms, 
-                                  versions, 
-                                  (a, version) => new AtomId { Kind = a.Kind, Name = a.Name, Version = version });
-        }
+        public async Task<IEnumerable<AtomId>> FetchVersionsAsync(IEnumerable<AtomId> atoms) =>
+            await Task.WhenAll(atoms.Select(async atomId => await FetchVersionAsync(atomId)));
 
         private async Task<bool> ExistsExactAsync(AtomId atomId)
         {
@@ -61,7 +56,7 @@ namespace Ecclesia.Resolver.Storage
 
         public async Task<IEnumerable<AtomId>> GetDependenciesAsync(AtomId atomId)
         {
-            var version = await FetchVersionAsync(atomId);
+            atomId = await FetchVersionAsync(atomId);
 
             try
             {
@@ -69,15 +64,10 @@ namespace Ecclesia.Resolver.Storage
                     await _context.Atoms
                         .Include(a => a.Dependencies)
                         .ThenInclude(d => d.Dependency)
-                        .SingleAsync(a => a.Kind == atomId.Kind && a.Name == atomId.Name && a.Version == version);
+                        .SingleAsync(a => a.Kind == atomId.Kind && a.Name == atomId.Name && a.Version == atomId.Version);
 
                 var deps = from dep in atom.Dependencies
-                        select new AtomId
-                        {
-                            Kind = dep.Dependency.Kind,
-                            Name = dep.Dependency.Name,
-                            Version = dep.Dependency.Version
-                        };
+                           select new AtomId(dep.Dependency.Kind, dep.Dependency.Name, dep.Dependency.Version);
 
                 return deps.ToList();
             }
@@ -92,7 +82,7 @@ namespace Ecclesia.Resolver.Storage
 
         public async Task<byte[]> GetContentAsync(AtomId atomId)
         {
-            var version = await FetchVersionAsync(atomId);
+            atomId = await FetchVersionAsync(atomId);
 
             try
             {
@@ -100,7 +90,7 @@ namespace Ecclesia.Resolver.Storage
                     .Include(a => a.Content)
                     .SingleAsync(a => a.Kind == atomId.Kind 
                                     && a.Name == atomId.Name 
-                                    && a.Version == version);
+                                    && a.Version == atomId.Version);
                 return atom.Content.Content;
             } 
             catch (InvalidOperationException)
@@ -172,7 +162,7 @@ namespace Ecclesia.Resolver.Storage
 
             await _context.SaveChangesAsync();
 
-            return new AtomId { Kind = atomId.Kind, Name = atomId.Name, Version = version };
+            return new AtomId(atomId.Kind, atomId.Name, version);
         }
 
         public void Dispose()

@@ -38,13 +38,7 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
         {
             try
             {
-                var atomId = new AtomId
-                {
-                    Kind = kind,
-                    Name = name,
-                    Version = version
-                };
-                atomId.Version = await _storage.FetchVersionAsync(atomId);
+                var atomId = await _storage.FetchVersionAsync(new AtomId(kind, name, version));
                 
                 var content = await _storage.GetContentAsync(atomId);
                 
@@ -71,13 +65,7 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
         {
             try
             {
-                var atomId = new AtomId
-                {
-                    Kind = kind, 
-                    Name = name,
-                    Version = version
-                };
-                atomId.Version = await _storage.FetchVersionAsync(atomId);
+                var atomId = await _storage.FetchVersionAsync(new AtomId(kind, name, version));
                 var dependencies = await _storage.GetDependenciesAsync(atomId);
                 return Ok(new AtomInfo 
                 { 
@@ -105,12 +93,7 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
 
             try
             {
-                var atomId = new AtomId
-                {
-                    Kind = request.Kind, 
-                    Name = request.Name,
-                    Version = request.Version
-                };
+                var atomId = new AtomId(request.Kind, request.Name, request.Version);
                 var realId = await _storage.AddAsync(atomId, 
                                                      request.Dependencies, 
                                                      Convert.FromBase64String(request.Content ?? string.Empty));
