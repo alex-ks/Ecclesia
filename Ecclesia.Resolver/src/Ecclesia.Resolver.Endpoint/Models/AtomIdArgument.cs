@@ -1,10 +1,13 @@
 using Newtonsoft.Json;
 
-public class AtomIdArgument
+namespace Ecclesia.Resolver.Endpoint.Models
 {
-    [JsonRequired]
-    public string Kind { get; set; }
-    [JsonRequired]
-    public string Name { get; set; }
-    public string Version { get; set; }
+    public class AtomIdArgument
+    {
+        [JsonRequired]
+        public string Kind { get; set; }
+        [JsonRequired]
+        public string Name { get; set; }
+        public string Version { get; set; }
+    }
 }
