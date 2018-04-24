@@ -32,6 +32,7 @@ namespace Ecclesia.Resolver.Endpoint
                 new NpgsqlResolverContext(connectionString));
             
             services.AddScoped<AtomStorage>();
+            services.AddScoped<Resolver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

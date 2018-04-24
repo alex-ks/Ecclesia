@@ -16,20 +16,47 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
     [Route("api/[controller]")]
     public class AtomsController : Controller
     {
-        private AtomStorage _storage;
+        private readonly AtomStorage _storage;
+        private readonly Resolver _resolver;
 
-        public AtomsController(AtomStorage storage)
+        public AtomsController(AtomStorage storage, Resolver resolver)
         {
             _storage = storage;
+            _resolver = resolver;
         }
 
         // Returns content of all requested atoms and all their dependencies
         [HttpGet]
-        public IEnumerable<AtomContent> Get([FromQuery] string atoms)
+        public async Task<IActionResult> Get([FromQuery] string atoms)
         {
-            var reqJson = HttpUtility.UrlDecode(Encoding.UTF8.GetBytes(atoms), Encoding.UTF8);
-            var atomsList = JsonConvert.DeserializeObject<IEnumerable<AtomId>>(reqJson);
-            return atomsList.Select(x => new AtomContent { Name = x.Name, Kind = x.Kind, Content = "" });
+            try
+            {
+                var reqJson = HttpUtility.UrlDecode(Encoding.UTF8.GetBytes(atoms), Encoding.UTF8);
+                var givenAtoms = JsonConvert
+                    .DeserializeObject<IEnumerable<AtomIdArgument>>(reqJson)
+                    .Select(atom => new AtomId(atom.Kind, atom.Name, atom.Version));
+
+                var allAtoms = await _resolver.ResolveAsync(givenAtoms);
+                var contents = await Task.WhenAll(allAtoms.Select(atom => _storage.GetContentAsync(atom)));
+
+                var result = from pair in Enumerable.Zip(allAtoms, contents, (atom, content) => (atom, content))
+                             select new AtomContent
+                             {
+                                 Kind = pair.atom.Kind,
+                                 Name = pair.atom.Name,
+                                 Version = pair.atom.Version,
+                                 Content = Convert.ToBase64String(pair.content)
+                             };
+                return Ok(result);
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (FormatException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // Returns content of the requested atom only
