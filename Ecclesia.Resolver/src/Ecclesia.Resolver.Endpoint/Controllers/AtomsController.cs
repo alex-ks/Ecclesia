@@ -122,7 +122,9 @@ namespace Ecclesia.Resolver.Endpoint.Controllers
             {
                 var atomId = new AtomId(request.Kind, request.Name, request.Version);
                 var realId = await _storage.AddAsync(atomId, 
-                                                     request.Dependencies, 
+                                                     request
+                                                        .Dependencies
+                                                        .Select(dep => new AtomId(dep.Kind, dep.Name, dep.Version)),
                                                      Convert.FromBase64String(request.Content ?? string.Empty));
                 return Ok(realId);
             }

@@ -15,6 +15,6 @@ namespace Ecclesia.Resolver.Endpoint.Models
         public string Content { get; set; }
         public JObject Meta { get; set; }
         [JsonRequired]
-        public IEnumerable<AtomId> Dependencies { get; set; }
+        public IEnumerable<AtomIdArgument> Dependencies { get; set; }
     }
 }
