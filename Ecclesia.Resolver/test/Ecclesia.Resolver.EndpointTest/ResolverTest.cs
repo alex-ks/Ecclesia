@@ -51,5 +51,42 @@ namespace Ecclesia.Resolver.EndpointTest
 
             Assert.Equal(new [] { si, eeg, workflow }, resolved);
         }
+
+        [Fact]
+        public async Task DependecyResolutionOrdering_SingleAtomDuplicateDeps_CorrectOrderReturned()
+        {
+            var storage = new AtomStorage(InitContext());
+            var si = await storage.AddAsync(new AtomId("fsdecl", "SI"), 
+                                            Enumerable.Empty<AtomId>(), 
+                                            new byte[0]);
+            var eeg = await storage.AddAsync(new AtomId("fsdecl", "Eeg"), 
+                                             Enumerable.Empty<AtomId>().Append(si), 
+                                             new byte[0]);
+            var workflow = await storage.AddAsync(new AtomId("filomena", "IcaFiltering"), 
+                                                  Enumerable.Empty<AtomId>().Append(eeg).Append(si), 
+                                                  new byte[0]);
+
+            var resolver = new Resolver.Endpoint.Resolver(storage);
+            var resolved = await resolver.ResolveAsync(new [] { workflow });
+
+            Assert.Equal(new [] { si, eeg, workflow }, resolved);
+        }
+
+        [Fact]
+        public async Task DependecyResolutionOrdering_MultipleAtomsDependent_CorrectOrderReturned()
+        {
+            var storage = new AtomStorage(InitContext());
+            var si = await storage.AddAsync(new AtomId("fsdecl", "SI"), 
+                                            Enumerable.Empty<AtomId>(), 
+                                            new byte[0]);
+            var eeg = await storage.AddAsync(new AtomId("fsdecl", "Eeg"), 
+                                             Enumerable.Empty<AtomId>().Append(si), 
+                                             new byte[0]);
+
+            var resolver = new Resolver.Endpoint.Resolver(storage);
+            var resolved = await resolver.ResolveAsync(new [] { eeg, si });
+
+            Assert.Equal(new [] { si, eeg }, resolved);
+        }
     }
 }
