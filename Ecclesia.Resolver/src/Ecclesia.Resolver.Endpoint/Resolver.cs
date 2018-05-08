@@ -15,24 +15,24 @@ namespace Ecclesia.Resolver.Endpoint
             _storage = storage;
         }
 
+        private async Task AtomDfs(AtomId current, HashSet<AtomId> resolved, List<AtomId> ordered)
+        {
+            var deps = await _storage.GetDependenciesAsync(current);
+            foreach (var dep in deps)
+                await AtomDfs(dep, resolved, ordered);
+            resolved.Add(current);
+            ordered.Add(current);
+        }
+
         public async Task<IEnumerable<AtomId>> ResolveAsync(IEnumerable<AtomId> atoms)
         {
-            var atomsSet = new HashSet<AtomId>(atoms);
-            var atomsQueue = new Queue<AtomId>(atoms);
+            var atomsSet = new HashSet<AtomId>();
+            var orderedAtoms = new List<AtomId>();
 
-            while (atomsQueue.Count != 0)
-            {
-                var atom = atomsQueue.Dequeue();
-                var deps = await _storage.GetDependenciesAsync(atom);
-                
-                foreach (var dep in deps)
-                {
-                    atomsSet.Add(dep);
-                    atomsQueue.Enqueue(dep);
-                }
-            }
+            foreach (var atom in atoms)
+                await AtomDfs(atom, atomsSet, orderedAtoms);
 
-            return atomsSet;
+            return orderedAtoms;
         }
     }
 }
