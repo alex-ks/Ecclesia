@@ -76,6 +76,7 @@ namespace Ecclesia.Resolver.EndpointTest
         public async Task DependecyResolutionOrdering_MultipleAtomsDependent_CorrectOrderReturned()
         {
             var storage = new AtomStorage(InitContext());
+            
             var si = await storage.AddAsync(new AtomId("fsdecl", "SI"), 
                                             Enumerable.Empty<AtomId>(), 
                                             new byte[0]);
@@ -84,7 +85,7 @@ namespace Ecclesia.Resolver.EndpointTest
                                              new byte[0]);
 
             var resolver = new Resolver.Endpoint.Resolver(storage);
-            var resolved = await resolver.ResolveAsync(new [] { eeg, si });
+            var resolved = await resolver.ResolveAsync(new [] { new AtomId("fsdecl", "Eeg"), new AtomId("fsdecl", "SI") });
 
             Assert.Equal(new [] { si, eeg }, resolved);
         }

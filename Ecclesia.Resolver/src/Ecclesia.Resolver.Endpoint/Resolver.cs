@@ -15,8 +15,9 @@ namespace Ecclesia.Resolver.Endpoint
             _storage = storage;
         }
 
-        private async Task AtomDfs(AtomId current, HashSet<AtomId> resolved, List<AtomId> ordered)
+        private async Task AtomDfs(AtomId atom, HashSet<AtomId> resolved, List<AtomId> ordered)
         {
+            var current = await _storage.FetchVersionAsync(atom);
             var deps = await _storage.GetDependenciesAsync(current);
             foreach (var dep in deps)
                 await AtomDfs(dep, resolved, ordered);
