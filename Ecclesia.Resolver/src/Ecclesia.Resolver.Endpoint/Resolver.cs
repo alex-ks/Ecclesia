@@ -20,8 +20,11 @@ namespace Ecclesia.Resolver.Endpoint
             var deps = await _storage.GetDependenciesAsync(current);
             foreach (var dep in deps)
                 await AtomDfs(dep, resolved, ordered);
-            resolved.Add(current);
-            ordered.Add(current);
+            if (!resolved.Contains(current))
+            {
+                resolved.Add(current);
+                ordered.Add(current);
+            }
         }
 
         public async Task<IEnumerable<AtomId>> ResolveAsync(IEnumerable<AtomId> atoms)
