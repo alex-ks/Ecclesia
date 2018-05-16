@@ -9,11 +9,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Ecclesia.Endpoint
 {
     public class Startup
     {
+        private const string ApiVersion = "v0.1";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -27,6 +30,9 @@ namespace Ecclesia.Endpoint
             services.AddCors();
             services.AddMvc();
             services.AddLogging();
+
+            services.AddSwaggerGen(options => 
+                options.SwaggerDoc(ApiVersion, new Info { Title = "Ecclesia API", Version = ApiVersion }));
 
             services
                 .AddIdentity<ApplicationUser, ApplicationRole>(options =>
@@ -85,6 +91,10 @@ namespace Ecclesia.Endpoint
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+                options.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", $"Ecclesia API {ApiVersion}"));
 
             app.UseAuthentication();
             app.UseMvc();

@@ -9,23 +9,38 @@ namespace Ecclesia.Endpoint.Controllers
     [Route("api/[controller]")]
     public class WorkflowsController : Controller
     {
-
-        public async Task<IActionResult> GetLastWorkflows()
+        [HttpGet]
+        [Route("last")]
+        public async Task<IActionResult> GetLastWorkflows([FromQuery] int count)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IActionResult> GetWorkflowVersions(string friendlyName)
+        [HttpGet]
+        public async Task<IActionResult> GetAllWorkflows()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IActionResult> GetSource(string friendlyName, string version)
+        [HttpGet]
+        [Route("{name}/versions")]
+        public async Task<IActionResult> GetWorkflowVersions(string name)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IActionResult> CreateVersion(string friendlyName, string version, string content)
+        [HttpGet]
+        [Route("{name}")]
+        public async Task<IActionResult> GetSource(string name, [FromQuery] string version)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Route("{name}")]
+        public async Task<IActionResult> CreateVersion(string friendlyName, 
+                                                       [FromQuery] string version, 
+                                                       string content)
         {
             throw new NotImplementedException();
         }
