@@ -2,6 +2,9 @@ import * as React from "react"
 import * as Bootstrap from "reactstrap"
 import { IComputationGraph } from "src/models/ComputationGraph"
 
+import WorkflowManager from "src/services/WorkflowManager"
+import Compiler from "src/services/Compiler"
+
 import "./Editor.css"
 
 enum CodeSubmitingStatus
@@ -16,10 +19,13 @@ interface IEditorProps
     compilerUrl: string;
     managementUrl: string;
     user: string;
+    name?: string;
 }
 
 interface IEditorState
 {
+    name: string;
+    version: string;
     source: string;
     codeStatus: CodeSubmitingStatus;
     codeStatusMessage: string;
@@ -37,26 +43,31 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
         ].join("\n");
         this.state = 
         { 
+            name: props.name ? props.name : null,
+            version: props.name ? props.name : "1.0.0",
             source: sampleCode, 
             codeStatus: CodeSubmitingStatus.Editing, 
             codeStatusMessage: ""
         };
+
+        if (props.name)
+        {
+            let manager = new WorkflowManager(props.managementUrl);
+            manager.getWorkflowVersions(props.name)
+                .then(versions => 
+                    {
+                        let version = versions[versions.length - 1];
+                        this.setState({ version: version });
+                        return manager.getSource(props.name, version);
+                    })
+                .then(code => this.setState({ source: code }));
+        }
     }
 
     compileCode(code: string)
     {
-        return new Promise<string>((resolve, reject) => 
-        {
-            let requester = new XMLHttpRequest();
-            requester.open('POST', this.props.compilerUrl, false);
-            requester.setRequestHeader("Content-Type", "application/json");
-            requester.send(JSON.stringify({ source: code }));
-
-            if (requester.status == 200)
-                resolve(requester.responseText);
-            else
-                reject(new Error([requester.status, requester.responseText].join(": ")));
-        });
+        let compiler = new Compiler(this.props.compilerUrl);
+        return compiler.compileCode(code);
     }
 
     requestExecution(graph: IComputationGraph)
@@ -78,9 +89,18 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
         });
     }
 
-    handleChange = (event: React.ChangeEvent<HTMLInputElement>) => 
+    handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => 
     {
         this.setState({ source: event.target.value, codeStatus: CodeSubmitingStatus.Editing });
+        let compiler = new Compiler(this.props.compilerUrl);
+        let checkResult = await compiler.partialCheck(event.target.value);
+        if (checkResult.name != this.state.name)
+        {
+            let manager = new WorkflowManager(this.props.managementUrl);
+            let version = "1.0.0";
+            await manager.createWorkflow(checkResult.name, event.target.value, version);
+            this.setState({ name: checkResult.name, version: version });
+        }
     }
 
     handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) =>
