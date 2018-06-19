@@ -18,7 +18,7 @@ export default class Compiler
         return new Promise<IPartialCheckResult>((resolve, reject) =>
         {
             let requester = new XMLHttpRequest();
-            requester.open('POST', this.url, false);
+            requester.open('POST', `${this.url}/partial`, false);
             requester.setRequestHeader("Content-Type", "application/json");
             requester.send(JSON.stringify({ source: source }));
 

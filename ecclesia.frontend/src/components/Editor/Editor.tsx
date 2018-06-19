@@ -29,6 +29,7 @@ interface IEditorState
     source: string;
     codeStatus: CodeSubmitingStatus;
     codeStatusMessage: string;
+    nameChanged: boolean;
 }
 
 export class Editor extends React.Component<IEditorProps, IEditorState>
@@ -47,7 +48,8 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
             version: props.name ? props.name : "1.0.0",
             source: sampleCode, 
             codeStatus: CodeSubmitingStatus.Editing, 
-            codeStatusMessage: ""
+            codeStatusMessage: "",
+            nameChanged: props.name ? false : true
         };
 
         if (props.name)
@@ -64,7 +66,7 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
         }
     }
 
-    compileCode(code: string)
+    compileCode = (code: string) =>
     {
         let compiler = new Compiler(this.props.compilerUrl);
         return compiler.compileCode(code);
@@ -95,12 +97,7 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
         let compiler = new Compiler(this.props.compilerUrl);
         let checkResult = await compiler.partialCheck(event.target.value);
         if (checkResult.name != this.state.name)
-        {
-            let manager = new WorkflowManager(this.props.managementUrl);
-            let version = "1.0.0";
-            await manager.createWorkflow(checkResult.name, event.target.value, version);
-            this.setState({ name: checkResult.name, version: version });
-        }
+            this.setState({ nameChanged: true, name: checkResult.name });
     }
 
     handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) =>
@@ -147,7 +144,7 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
                         <Bootstrap.Label 
                             for="source"
                             id="codeSubmitLabel">
-                            Enter your source code:
+                            {this.state.name ? this.state.name : "Enter your code here:"}
                         </Bootstrap.Label>
                         <Bootstrap.Input 
                             type="textarea" 
