@@ -30,6 +30,7 @@ interface IEditorState
     codeStatus: CodeSubmitingStatus;
     codeStatusMessage: string;
     nameChanged: boolean;
+    saved: boolean;
 }
 
 export class Editor extends React.Component<IEditorProps, IEditorState>
@@ -49,7 +50,8 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
             source: sampleCode, 
             codeStatus: CodeSubmitingStatus.Editing, 
             codeStatusMessage: "",
-            nameChanged: props.name ? false : true
+            nameChanged: props.name ? false : true,
+            saved: props.name ? true : false
         };
 
         if (props.name)
@@ -141,11 +143,44 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
             <Bootstrap.Form>
                 <div id="codeForm">
                     <Bootstrap.FormGroup>
-                        <Bootstrap.Label 
-                            for="source"
-                            id="codeSubmitLabel">
-                            {this.state.name ? this.state.name : "Enter your code here:"}
-                        </Bootstrap.Label>
+                        <Bootstrap.Row>
+                            <Bootstrap.Col xs="auto">
+                                <Bootstrap.Label
+                                    for="source"
+                                    id="codeSubmitLabel">
+                                    {this.state.name ? this.state.name : "Enter your code here:"}
+                                </Bootstrap.Label>
+                            </Bootstrap.Col>
+                            <Bootstrap.Col>
+                                <Bootstrap.Row id="toolbarRow">
+                                    <Bootstrap.Col xs="auto">
+                                        <Bootstrap.Label className="toolbarElement">
+                                            Changes are not saved
+                                        </Bootstrap.Label>
+                                    </Bootstrap.Col>
+                                    <Bootstrap.Col xs="auto">
+                                        <Bootstrap.Button
+                                            outline
+                                            className="toolbarElement">
+                                            Save
+                                        </Bootstrap.Button>
+                                    </Bootstrap.Col>
+                                    <Bootstrap.Col xs="auto">
+                                        <Bootstrap.Dropdown 
+                                            id="versionsList"
+                                            className="toolbarElement">
+                                            <Bootstrap.DropdownToggle caret outline>
+                                                Dropdown
+                                            </Bootstrap.DropdownToggle>
+                                            <Bootstrap.DropdownMenu>
+                                                <Bootstrap.DropdownItem>1.0.0</Bootstrap.DropdownItem>
+                                                <Bootstrap.DropdownItem>1.0.1</Bootstrap.DropdownItem>
+                                            </Bootstrap.DropdownMenu>
+                                        </Bootstrap.Dropdown>
+                                    </Bootstrap.Col>
+                                </Bootstrap.Row>
+                            </Bootstrap.Col>                      
+                        </Bootstrap.Row>
                         <Bootstrap.Input 
                             type="textarea" 
                             id="source"
