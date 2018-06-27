@@ -1,11 +1,16 @@
 import * as React from "react"
 import * as Bootstrap from "reactstrap"
 import { IComputationGraph } from "src/models/ComputationGraph"
+import { UnControlled as CodeMirror } from "react-codemirror2"
 
 import WorkflowManager from "src/services/WorkflowManager"
 import Compiler from "src/services/Compiler"
 
 import "./Editor.css"
+import "codemirror/lib/codemirror.css"
+import "codemirror/theme/neat.css"
+import "codemirror/theme/material.css"
+import "codemirror/mode/mllike/mllike"
 
 enum CodeSubmitingStatus
 {
@@ -31,6 +36,8 @@ interface IEditorState
     codeStatusMessage: string;
     nameChanged: boolean;
     saved: boolean;
+    cursor: CodeMirror.Position;
+    dropdownOpen: boolean;
 }
 
 export class Editor extends React.Component<IEditorProps, IEditorState>
@@ -51,7 +58,9 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
             codeStatus: CodeSubmitingStatus.Editing, 
             codeStatusMessage: "",
             nameChanged: props.name ? false : true,
-            saved: props.name ? true : false
+            saved: props.name ? true : false,
+            cursor: null,
+            dropdownOpen: false
         };
 
         if (props.name)
@@ -93,11 +102,11 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
         });
     }
 
-    handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => 
+    handleChange = async (editor: CodeMirror.Editor, data: CodeMirror.EditorChange, value: string) => 
     {
-        this.setState({ source: event.target.value, codeStatus: CodeSubmitingStatus.Editing });
+        this.setState({ source: value, codeStatus: CodeSubmitingStatus.Editing, cursor: data.to });
         let compiler = new Compiler(this.props.compilerUrl);
-        let checkResult = await compiler.partialCheck(event.target.value);
+        let checkResult = await compiler.partialCheck(value);
         if (checkResult.name != this.state.name)
             this.setState({ nameChanged: true, name: checkResult.name });
     }
@@ -140,9 +149,9 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
     render()
     {
         return (
-            <Bootstrap.Form>
-                <div id="codeForm">
-                    <Bootstrap.FormGroup>
+            <div id="codeForm">
+                <Bootstrap.Row>
+                    <Bootstrap.Col>
                         <Bootstrap.Row>
                             <Bootstrap.Col xs="auto">
                                 <Bootstrap.Label
@@ -154,7 +163,9 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
                             <Bootstrap.Col>
                                 <Bootstrap.Row id="toolbarRow">
                                     <Bootstrap.Col xs="auto">
-                                        <Bootstrap.Label className="toolbarElement">
+                                        <Bootstrap.Label 
+                                            className="toolbarElement"
+                                            style={{color: "#0000007F"}}>
                                             Changes are not saved
                                         </Bootstrap.Label>
                                     </Bootstrap.Col>
@@ -168,9 +179,12 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
                                     <Bootstrap.Col xs="auto">
                                         <Bootstrap.Dropdown 
                                             id="versionsList"
+                                            isOpen={this.state.dropdownOpen}
+                                            toggle={() => this.setState(
+                                                prev => ({ dropdownOpen: !prev.dropdownOpen }))}
                                             className="toolbarElement">
                                             <Bootstrap.DropdownToggle caret outline>
-                                                Dropdown
+                                                1.0.1
                                             </Bootstrap.DropdownToggle>
                                             <Bootstrap.DropdownMenu>
                                                 <Bootstrap.DropdownItem>1.0.0</Bootstrap.DropdownItem>
@@ -181,9 +195,10 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
                                 </Bootstrap.Row>
                             </Bootstrap.Col>                      
                         </Bootstrap.Row>
-                        <Bootstrap.Input 
-                            type="textarea" 
-                            id="source"
+                        <CodeMirror 
+                            className="codemirrorArea"
+                            cursor={this.state.cursor}
+                            options={{ mode: "mllike", theme: "neat", lineNumbers: true }}
                             value={this.state.source}
                             onChange={this.handleChange} />
                         <Bootstrap.Alert 
@@ -197,9 +212,29 @@ export class Editor extends React.Component<IEditorProps, IEditorState>
                             onClick={this.handleSubmit}>
                             Submit
                         </Bootstrap.Button>
-                    </Bootstrap.FormGroup>
-                </div>
-            </Bootstrap.Form>
+                    </Bootstrap.Col>
+                    <Bootstrap.Col xs="3">
+                        <Bootstrap.Jumbotron 
+                            fluid
+                            style={{ height: "100%" }}>
+                            <Bootstrap.Container fluid>
+                                <p className="lead">
+                                    Suggestions
+                                </p>
+                                <Bootstrap.Card>
+                                    <Bootstrap.CardBody>
+                                        <Bootstrap.CardTitle>fast-ICA</Bootstrap.CardTitle>
+                                        <Bootstrap.CardText>
+                                            A fast algorithm for Independent Component Analysis
+                                        </Bootstrap.CardText>
+                                        <Bootstrap.Button>Insert</Bootstrap.Button>
+                                    </Bootstrap.CardBody>
+                                </Bootstrap.Card>
+                            </Bootstrap.Container>
+                        </Bootstrap.Jumbotron>
+                    </Bootstrap.Col>
+                </Bootstrap.Row>
+            </div>
         );
     }
 }

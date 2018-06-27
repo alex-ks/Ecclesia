@@ -40,3 +40,8 @@
 {
     margin: 0.5em 0em;
 }
+
+.codemirrorArea
+{
+    border-style: groove
+}
